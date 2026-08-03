@@ -1,0 +1,32 @@
+# Mirrors upstream infinity-periphery settings (solc 0.8.26, via-ir, 1M runs).
+# lib/infinity-core is a symlink to ../core (single vendored copy).
+[profile.default]
+src = 'src'
+out = 'out'
+libs = ['lib']
+solc_version = '0.8.26'
+optimizer_runs = 1_000_000
+via_ir = true
+evm_version = 'cancun'
+bytecode_hash = 'none'
+remappings = [
+    'infinity-core/=lib/infinity-core/',
+    'forge-std/=lib/infinity-core/lib/forge-std/src/',
+    'ds-test/=lib/infinity-core/lib/forge-std/lib/ds-test/src/',
+    'openzeppelin-contracts/=lib/infinity-core/lib/openzeppelin-contracts/',
+    '@openzeppelin/=lib/infinity-core/lib/openzeppelin-contracts/',
+    'solmate/=lib/infinity-core/lib/solmate/',
+    'permit2/=lib/permit2/',
+]
+
+# CLPositionManager must compile at 9000 runs to fit the 24KB size limit
+# (mirrors upstream additional_compiler_profiles / compilation_restrictions).
+additional_compiler_profiles = [
+  { name = "clPosm", optimizer_runs = 9000 }
+]
+compilation_restrictions = [
+  { paths = "src/pool-cl/CLPositionManager.sol", optimizer_runs = 9000 }
+]
+
+[rpc_endpoints]
+base_sepolia = "${RPC_URL}"
