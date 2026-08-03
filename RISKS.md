@@ -10,10 +10,12 @@ Running log of anything guessed, stubbed, or blocked. Newest first.
   than newer core HEAD `7c04695` — re-evaluate when bumping periphery. UR's periphery
   submodule pin (`481650d`) differs from our vendored periphery HEAD — compiled clean
   against ours; watch on upgrades.
-- **2026-08-03 — v3 position farming not yet forked.** MasterChefV3 + v3-lm-pool
-  (and the factory `setLmPoolDeployer` wiring) are deferred to a follow-up step; v2 LP
-  farming + HAWK staking are live via MCv1. MCv3 will be funded by HAWK transfers from
-  the deployer's balance (HAWK mint now belongs to MCv1 forever — standard design).
+- **RESOLVED 2026-08-03 (same day): v3 position farming live** — MasterChefV3
+  `0x8DBd…84F6` + LmPoolDeployer `0x64FF…5C57`, 3 pools, 100k HAWK/30d upkeep funded
+  from deployer balance, stake+harvest smoke passed. Emissions need a re-`upkeep`
+  after 2026-09-02 (30-day period) — deployer holds ~9.9M HAWK for refills. Skipped
+  from upstream masterchef-v3: keeper/, receiver/ (FarmBooster + upkeep automation
+  — manual upkeep suffices on testnet).
 - **2026-08-03 — public RPC nonce races.** sepolia.base.org load-balances across nodes
   with inconsistent pending state; roughly 1 in 10 back-to-back txs fails with "nonce too
   low" after the tx actually landed. All deploy scripts are idempotent re-runs; balance

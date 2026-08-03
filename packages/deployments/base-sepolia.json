@@ -73,6 +73,28 @@
         "lp": "0x0972d080e24b67232A8A438D48C507fE6A9DB8b4",
         "alloc": 1000
       }
+    },
+    "MasterChefV3": "0x8DBd87Df712413b963d921a6C928cb7212Ab84F6",
+    "HawkingV3LmPoolDeployer": "0x64FF5CFAcc106032DeDBbF2B65cADD5d47185C57",
+    "v3Pools": {
+      "1": {
+        "name": "HAWK/WETH",
+        "pool": "0x00bE0e0d55df569e40f46A289861307b870578c9",
+        "fee": 2500,
+        "alloc": 200
+      },
+      "2": {
+        "name": "WETH/tUSDC",
+        "pool": "0xb36477fAE0c71ea671A747e1B72Ee094F82f5A82",
+        "fee": 500,
+        "alloc": 100
+      },
+      "3": {
+        "name": "tUSDC/tUSDT",
+        "pool": "0xa105b11344d43De4e1e97C0f55f1BA91BB7152ec",
+        "fee": 100,
+        "alloc": 100
+      }
     }
   }
 }
