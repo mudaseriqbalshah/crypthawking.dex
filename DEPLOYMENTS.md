@@ -55,6 +55,15 @@ generated `0xE2ec…5147`, which was never used and holds nothing.
 | 5 | CLPositionDescriptor (off-chain) | `0x85ED0ABe1b308b7370358ff45EC5319847dd3A46` | pending (rate-limited) |
 | 5 | CLQuoter / BinQuoter / CLTickLens | `0x8346DC…e7E9` / `0xc7DD71…15bC8` / `0x148556…95C2` | pending (rate-limited) |
 
+| 5 | **UniversalRouter** | `0x0180e61b23201479111D7595c7084Ce1D50f88d4` | pending (rate-limited) |
+
+**UniversalRouter** (the frontend's single swap entrypoint) deployed 2026-08-03 with our
+v2 INIT_CODE_PAIR_HASH + v3 POOL_INIT_CODE_HASH as constructor immutables and the
+hawkingV3SwapCallback ABI. Stable-swap immutables are zero (not deployed). Tri-protocol
+live smoke: 3 on-chain swaps of 5 tUSDC → tUSDT each through v2, v3, and Infinity CL in
+sequence — all receipts status 1, total 14.936461 tUSDT out — which also end-to-end
+validates both init code hashes (a wrong hash reverts with a mispredicted pool address).
+
 Phase 5 deployed 2026-08-03 via `scripts/deploy-infinity.sh` (core pinned upstream
 `397723e`; vault↔pool-manager apps registered, fee controllers set). First CL pool
 seeded via `SeedInfinity.s.sol`: tUSDC/tUSDT 0.01%, tickSpacing 1, full-range 2000e6

@@ -69,5 +69,13 @@ deploy periphery CLQuoter src/pool-cl/lens/CLQuoter.sol:CLQuoter "$CLPM"
 deploy periphery BinQuoter src/pool-bin/lens/BinQuoter.sol:BinQuoter "$BINPM"
 deploy periphery CLTickLens src/pool-cl/lens/TickLens.sol:TickLens "$CLPM"
 
+# ---- universal router (single swap entrypoint: v2 + v3 + infinity) ----
+V2F=$(jq -r '.v2.HawkingFactory' "$REG"); V3F=$(jq -r '.v3.HawkingV3Factory' "$REG")
+V3D=$(jq -r '.v3.HawkingV3PoolDeployer' "$REG")
+V2HASH=$(jq -r '.v2.initCodePairHash' "$REG"); V3HASH=$(jq -r '.v3.poolInitCodeHash' "$REG")
+ZERO=0x0000000000000000000000000000000000000000
+deploy universal-router UniversalRouter src/UniversalRouter.sol:UniversalRouter \
+  "($PERMIT2,$WETH9,$V2F,$V3F,$V3D,$V2HASH,$V3HASH,$ZERO,$ZERO,$VAULT,$CLPM,$BINPM)"
+
 echo "done. infinity:"
 jq '.infinity' "$REG"
