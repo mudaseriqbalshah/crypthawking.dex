@@ -18,7 +18,7 @@ Pools: 0 = HAWK staking (alloc 1000, mints NEST receipts), 1 = HAWK/WETH LP
 (4000), 2 = tUSDC/WETH LP (1000), 3 = tUSDC/tUSDT LP (1000). Full map with LP
 addresses in the registry under `farms.pools`.
 
-Not yet forked: MasterChefV3 + v3-lm-pool (v3 position farming) — see RISKS.md.
+Also here: masterchef-v3/ (MCv3, solc 0.8.10) + v3-lm-pool/ (LmPool per farmed v3 pool, solc 0.7.6) — v3 position farming, funded via upkeep() rather than minting.
 
 ## Commands
 

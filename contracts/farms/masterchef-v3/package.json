@@ -1,0 +1,19 @@
+{
+  "name": "@cryptohawking/masterchef-v3",
+  "version": "1.0.0",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "compile": "hardhat compile"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "4.9.6"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-ethers": "^3.0.8",
+    "@nomicfoundation/hardhat-verify": "^2.0.12",
+    "dotenv": "^17.4.2",
+    "ethers": "^6.13.0",
+    "hardhat": "^2.26.0"
+  }
+}

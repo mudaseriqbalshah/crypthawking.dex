@@ -37,6 +37,16 @@ generated `0xE2ec…5147`, which was never used and holds nothing.
 
 | 3 | NestBar (NEST) | `0x8f7BE274b5e85C4b244CAe562AeBf023f70a185f` | pending (rate-limited) |
 | 3 | MasterChef | `0x30cCe7f0eE4314Ca353cC16ecaAcb2E2aE4E6963` | pending (rate-limited) |
+| 3b | MasterChefV3 | `0x8DBd87Df712413b963d921a6C928cb7212Ab84F6` | pending (rate-limited) |
+| 3b | HawkingV3LmPoolDeployer | `0x64FF5CFAcc106032DeDBbF2B65cADD5d47185C57` | pending (rate-limited) |
+
+Phase 3b (v3 position farming) deployed 2026-08-03 via
+`contracts/farms/masterchef-v3/scripts/deploy.js`. Wiring: v3factory.setLmPoolDeployer,
+chef.setLMPoolDeployer, receiver=deployer (max HAWK allowance), 3 farm pools added
+(HAWK/WETH 200, WETH/tUSDC 100, tUSDC/tUSDT 100 — an LmPool auto-deployed per pool,
+addresses discoverable via `v3pool.lmPool()`), funded via `upkeep(100k HAWK, 30d)`.
+Live smoke: staked position NFT #1 into MCv3, harvested 0.308641 HAWK ✔ (rate matches
+alloc share). MCv3 keeps upstream `pendingCake`/`CAKE` ABI names for frontend compat.
 | 4 | HawkingV3PoolDeployer | `0x2E2530dFbcb1bcCdf10Bf8Cd53179217d8264565` | pending (rate-limited) |
 | 4 | HawkingV3Factory | `0xf5c64e43dfF3CA1D6B64ebE13C857ae14fc41C61` | pending (rate-limited) |
 | 4 | SwapRouter (v3) | `0x4f8dBB1545F49CBfDeC3CC3693548f7a1FAEf17D` | pending (rate-limited) |
