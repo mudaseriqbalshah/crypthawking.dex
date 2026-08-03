@@ -16,9 +16,15 @@ Changes vs upstream (rename-only):
 - external v3/v2 integration interfaces renamed IPancake*→IHawking* and callback
   `pancakeV3SwapCallback`→`hawkingV3SwapCallback` (matches our v3 fork's ABI)
 
-Not deployed (see RISKS.md): universal router (next phase — until then Infinity
-swaps are quote-only; no tx swap entrypoint), MixedQuoter (requires a stable-swap
-factory we don't run), InfinityRouter is abstract by design.
+- `universal-router/` — UniversalRouter, the single swap entrypoint for v2 + v3 +
+  Infinity. Our v2/v3 init code hashes are constructor immutables (registry has
+  them); v3 callback renamed to `hawkingV3SwapCallback`; stable-swap immutables
+  zero (not deployed). Settings: 20000 runs via-ir. lib/* symlink into ../core
+  and ../periphery.
+
+Not deployed (see RISKS.md): MixedQuoter (requires a stable-swap factory we
+don't run). InfinityRouter is abstract by design — UniversalRouter is the
+concrete swap entrypoint.
 
 ## Commands
 
