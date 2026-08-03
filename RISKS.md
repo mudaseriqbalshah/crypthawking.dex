@@ -2,6 +2,18 @@
 
 Running log of anything guessed, stubbed, or blocked. Newest first.
 
+- **2026-08-03 — 2 of 6 phase-1 contracts unverified.** Blockscout rate-limits this IP's
+  anonymous verification requests; tDAI (`0x66db…fa07`) and Faucet (`0x7264…113f`) failed
+  twice post-cooldown → parked per fails-twice rule. Retry later or verify on Basescan
+  once ETHERSCAN_API_KEY lands. tDAI shares bytecode with verified tUSDC and may
+  auto-match on its own. HawkToken/tUSDC/tUSDT/tWBTC are verified.
+- **2026-08-03 — v2 fork deviations from upstream (path/tooling only):** vendored
+  `TransferHelper.sol` from Uniswap/solidity-lib master (MIT) into
+  `contracts/v2/contracts/libraries/` instead of the `@uniswap/lib` npm dep; skipped
+  `PancakeRouter01.sol` (legacy, undeployed upstream) and `PancakeZapV1.sol` + Babylonian
+  (zap feature deferred). Upstream hardhat test suite not resurrected (2021 toolchain);
+  replaced with targeted fork tests (init-hash consistency, add/swap/remove liquidity).
+
 - **2026-08-03 — upstream pancake-frontend deleted from GitHub.** `pancakeswap/pancake-frontend`
   returns a hard 404 (no redirect; absent from the org's repo list). Using mirror
   `germartinez/pancake-frontend-candidate-009` pinned to upstream commit
