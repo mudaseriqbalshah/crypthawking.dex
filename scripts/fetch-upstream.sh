@@ -12,10 +12,12 @@ REPOS=(
   pancakeswap/infinity-core
   pancakeswap/infinity-periphery
   pancakeswap/infinity-universal-router
-  pancakeswap/pancake-frontend
   pancakeswap/token-list
   pancakeswap/pancake-subgraph
 )
+# NOTE: pancakeswap/pancake-frontend is gone from GitHub (hard 404). Fetching a
+# mirror is a manual step pending user approval — see RISKS.md for the verified
+# candidate mirror + pinned commit. This script intentionally does not fetch it.
 
 for repo in "${REPOS[@]}"; do
   name="${repo#*/}"
