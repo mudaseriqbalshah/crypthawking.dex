@@ -32,8 +32,8 @@ generated `0xE2ec…5147`, which was never used and holds nothing.
 | 1 | TestERC20 tWBTC | `0xE5839C45b8c282E6786D6CC7Dc1c6aB70D5b3D70` | Blockscout ✔ |
 | 1 | Faucet (24h cooldown) | `0x7264a007e40E52b767B1Ec749baf5Ae1860B113f` | pending (rate-limited) |
 
-| 2 | HawkingFactory | `0x8F2F1F21AaFfEC52E6A390E922E784bEA9E7D8C4` | see below |
-| 2 | HawkingRouter (02) | `0x57B76A5a7abAF54Ba7f88b402863CD313667B380` | see below |
+| 2 | HawkingFactory | `0x8F2F1F21AaFfEC52E6A390E922E784bEA9E7D8C4` | pending (rate-limited) |
+| 2 | HawkingRouter (02) | `0x57B76A5a7abAF54Ba7f88b402863CD313667B380` | pending (rate-limited) |
 
 Phase 2 deployed 2026-08-03 via `contracts/v2/scripts/deploy.js` + `seed-liquidity.js`.
 **v2 INIT_CODE_PAIR_HASH = `0xdd198c2e09078ada1f08cf8af11ae51f6440888c218c1a1062b3ef1048c30b7e`**
