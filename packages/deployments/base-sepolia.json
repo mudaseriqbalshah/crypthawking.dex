@@ -36,5 +36,30 @@
     "poolInitCodeHash": "0x2c9f5653989ede03d6a329c69ee5e31f7587fdbf4cb8a0209028a9f095033da5"
   },
   "infinity": {},
-  "farms": {}
+  "farms": {
+    "NestBar": "0x8f7BE274b5e85C4b244CAe562AeBf023f70a185f",
+    "MasterChef": "0x30cCe7f0eE4314Ca353cC16ecaAcb2E2aE4E6963",
+    "pools": {
+      "0": {
+        "name": "HAWK staking",
+        "lp": "0x2843bABb7557CD51e8007F8D2a960457c734C570",
+        "alloc": 1000
+      },
+      "1": {
+        "name": "HAWK/WETH HAWK-LP",
+        "lp": "0xd4eAAe265c051f338cB01F99116647A19F31e4C3",
+        "alloc": 4000
+      },
+      "2": {
+        "name": "tUSDC/WETH HAWK-LP",
+        "lp": "0x832E6D2DdA6D6d47459c0b09A37e2b334aBb2f8e",
+        "alloc": 1000
+      },
+      "3": {
+        "name": "tUSDC/tUSDT HAWK-LP",
+        "lp": "0x0972d080e24b67232A8A438D48C507fE6A9DB8b4",
+        "alloc": 1000
+      }
+    }
+  }
 }
