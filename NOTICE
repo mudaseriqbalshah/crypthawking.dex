@@ -1,0 +1,19 @@
+CryptoHawking DEX
+Copyright (c) 2026 CryptoHawking
+
+This project is a rebranded fork of PancakeSwap (https://pancakeswap.finance),
+Copyright (c) PancakeSwap. Upstream sources:
+
+  github.com/pancakeswap/pancake-smart-contracts   (GPL-3.0 / MIT per package)
+  github.com/pancakeswap/pancake-swap-core         (GPL-3.0)
+  github.com/pancakeswap/pancake-v3-contracts      (GPL-2.0-or-later / MIT per package)
+  github.com/pancakeswap/infinity-core             (MIT / GPL per file headers)
+  github.com/pancakeswap/infinity-periphery
+  github.com/pancakeswap/infinity-universal-router
+  github.com/pancakeswap/pancake-frontend          (GPL-3.0)
+
+Portions derive from Uniswap v2/v3/v4 (Uniswap Labs) via PancakeSwap.
+
+Each subdirectory retains its upstream LICENSE file and copyright headers. All
+CryptoHawking modifications are limited to branding, addresses, and configuration,
+and are released under the same license as the file they modify.
