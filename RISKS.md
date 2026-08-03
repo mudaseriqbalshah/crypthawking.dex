@@ -2,6 +2,16 @@
 
 Running log of anything guessed, stubbed, or blocked. Newest first.
 
+- **2026-08-03 — upstream pancake-frontend deleted from GitHub.** `pancakeswap/pancake-frontend`
+  returns a hard 404 (no redirect; absent from the org's repo list). Using mirror
+  `germartinez/pancake-frontend-candidate-009` pinned to upstream commit
+  `55653883b7daaa4f039e3a3d13ef62b9bc15e291` (chefjackson, PR #12010, 2025-07-30).
+  Provenance check: that exact SHA exists in 5 independently-uploaded mirrors
+  (germartinez, yashgo0018, dipanshuhappy, blobitty, ensdomains) — git content-addressing
+  makes identical SHA = identical history/tree. Residual risk: snapshot is ~1 year old;
+  any upstream fixes after 2025-07-30 are not included. Frontend is GPL-3.0 so using the
+  mirror is license-clean.
+
 - **2026-08-03 — No deployer key.** No `.env` with a Base Sepolia private key exists yet.
   All deploys are blocked until the user provides (or approves generating) a fresh
   testnet-only key and funds it from a Base Sepolia faucet. Never reuse any production key.
