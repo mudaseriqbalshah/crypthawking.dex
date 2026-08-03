@@ -19,7 +19,9 @@ verified**.
 
 ## Our deployments
 
-_None yet. Deployer address: TBD (waiting on funded Base Sepolia key — see RISKS.md)._
+_None yet. Deployer: `0xE2ec52bf3aC8E9c9D9B1f666bDD7f05819dd5147` (fresh testnet-only
+key generated 2026-08-03 via `cast wallet new`, stored in gitignored `.env`, chmod 600).
+Balance 0 — **needs Base Sepolia ETH from a faucet before any deploy**._
 
 | Phase | Contract | Address | Tx | Basescan verified |
 |---|---|---|---|---|
