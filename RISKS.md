@@ -2,6 +2,14 @@
 
 Running log of anything guessed, stubbed, or blocked. Newest first.
 
+- **2026-08-03 — v3 position farming not yet forked.** MasterChefV3 + v3-lm-pool
+  (and the factory `setLmPoolDeployer` wiring) are deferred to a follow-up step; v2 LP
+  farming + HAWK staking are live via MCv1. MCv3 will be funded by HAWK transfers from
+  the deployer's balance (HAWK mint now belongs to MCv1 forever — standard design).
+- **2026-08-03 — public RPC nonce races.** sepolia.base.org load-balances across nodes
+  with inconsistent pending state; roughly 1 in 10 back-to-back txs fails with "nonce too
+  low" after the tx actually landed. All deploy scripts are idempotent re-runs; balance
+  reads right after a tx can also be stale — re-poll before concluding failure.
 - **2026-08-03 — v3 NFT descriptor is the off-chain variant with a stub base URI.**
   `NonfungibleTokenPositionDescriptorOffChain` initialized with
   `https://dex.cryptohawking.com/api/v3/nft/` — that API route doesn't exist yet

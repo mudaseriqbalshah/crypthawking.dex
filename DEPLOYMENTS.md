@@ -35,6 +35,8 @@ generated `0xE2ec…5147`, which was never used and holds nothing.
 | 2 | HawkingFactory | `0x8F2F1F21AaFfEC52E6A390E922E784bEA9E7D8C4` | pending (rate-limited) |
 | 2 | HawkingRouter (02) | `0x57B76A5a7abAF54Ba7f88b402863CD313667B380` | pending (rate-limited) |
 
+| 3 | NestBar (NEST) | `0x8f7BE274b5e85C4b244CAe562AeBf023f70a185f` | pending (rate-limited) |
+| 3 | MasterChef | `0x30cCe7f0eE4314Ca353cC16ecaAcb2E2aE4E6963` | pending (rate-limited) |
 | 4 | HawkingV3PoolDeployer | `0x2E2530dFbcb1bcCdf10Bf8Cd53179217d8264565` | pending (rate-limited) |
 | 4 | HawkingV3Factory | `0xf5c64e43dfF3CA1D6B64ebE13C857ae14fc41C61` | pending (rate-limited) |
 | 4 | SwapRouter (v3) | `0x4f8dBB1545F49CBfDeC3CC3693548f7a1FAEf17D` | pending (rate-limited) |
