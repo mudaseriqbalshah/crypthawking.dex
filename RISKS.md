@@ -2,6 +2,11 @@
 
 Running log of anything guessed, stubbed, or blocked. Newest first.
 
+- **2026-08-03 — source verification backlog (Blockscout 429s).** This IP is currently
+  hard-throttled by Blockscout's API. Unverified: tDAI, Faucet, HawkingFactory,
+  HawkingRouter. All submissions are one command each (see contracts/*/README.md);
+  sweep them once the limit resets or ETHERSCAN_API_KEY (Basescan) is provided.
+  Bytecode integrity is meanwhile assured by tests + on-chain INIT_CODE_PAIR_HASH check.
 - **2026-08-03 — 2 of 6 phase-1 contracts unverified.** Blockscout rate-limits this IP's
   anonymous verification requests; tDAI (`0x66db…fa07`) and Faucet (`0x7264…113f`) failed
   twice post-cooldown → parked per fails-twice rule. Retry later or verify on Basescan
