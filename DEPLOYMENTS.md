@@ -46,6 +46,13 @@ generated `0xE2ec…5147`, which was never used and holds nothing.
 | 4 | TickLens | `0xd0EEc8981C05AA0919C4bE972d4F3a42dC9518FD` | pending (rate-limited) |
 | 4 | HawkingInterfaceMulticall | `0xD6aE563d02F89DEC2437E01632359ad997BE46FA` | pending (rate-limited) |
 
+Phase 3 deployed 2026-08-03 via `contracts/farms/scripts/deploy.js`. HAWK + NEST
+ownership → MasterChef (irreversible, standard MCv1); emissions 1 HAWK/block + 10% dev
+cut to deployer. Pools (registry `farms.pools`): 0 HAWK staking (1000), 1 HAWK/WETH LP
+(4000), 2 tUSDC/WETH LP (1000), 3 tUSDC/tUSDT LP (1000). Live smoke: deposited 2.179
+HAWK-LP into pid 1, accrued 2.5 HAWK in ~4 blocks, harvested 8.25 HAWK ✔
+MasterChefV3 + lm-pool deferred (RISKS.md).
+
 Phase 4 deployed 2026-08-03 via `contracts/v3/periphery/scripts/deploy.js` + `seed-pools.js`.
 **v3 POOL_INIT_CODE_HASH = `0x2c9f5653989ede03d6a329c69ee5e31f7587fdbf4cb8a0209028a9f095033da5`**
 (recomputed after rebrand — pool/deployer at solc 0.7.6, istanbul, optimizer 400 runs,
