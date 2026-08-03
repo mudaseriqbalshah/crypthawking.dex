@@ -10,8 +10,15 @@
     "DeterministicDeployer": "0x4e59b44847b379578588920cA78FbF26c0B4956C"
   },
   "infraVerified": "2026-08-03T00:00:00Z",
-  "deployer": "0xE2ec52bf3aC8E9c9D9B1f666bDD7f05819dd5147",
-  "tokens": {},
+  "deployer": "0x8DAFaBcEb8B05629cf1591A32f5fd8A1c0a75e95",
+  "tokens": {
+    "HAWK": "0x2843bABb7557CD51e8007F8D2a960457c734C570",
+    "tUSDC": "0x582800AFC82bA6c8c8b9ce3Be0416E913f7E59c2",
+    "tUSDT": "0x85323e2368865E6dcfFC8dEf64016A5Eafe8D988",
+    "tDAI": "0x66dbAe86eC0689cC398eF3f1D4486261EC1ffa07",
+    "tWBTC": "0xE5839C45b8c282E6786D6CC7Dc1c6aB70D5b3D70",
+    "Faucet": "0x7264a007e40E52b767B1Ec749baf5Ae1860B113f"
+  },
   "v2": {},
   "v3": {},
   "infinity": {},
