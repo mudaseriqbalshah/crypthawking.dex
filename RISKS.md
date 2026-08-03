@@ -2,6 +2,12 @@
 
 Running log of anything guessed, stubbed, or blocked. Newest first.
 
+- **2026-08-03 — Infinity has no tx-swap entrypoint yet.** InfinityRouter is abstract
+  upstream; real swaps require the universal-router fork (next phase). Until then
+  Infinity pools support liquidity ops + quotes only. Also skipped: MixedQuoter (ctor
+  requires a stable-swap factory — we don't run stable swap). Core pinned to upstream
+  `397723e` (periphery's pin) rather than newer core HEAD `7c04695` — re-evaluate when
+  bumping periphery.
 - **2026-08-03 — v3 position farming not yet forked.** MasterChefV3 + v3-lm-pool
   (and the factory `setLmPoolDeployer` wiring) are deferred to a follow-up step; v2 LP
   farming + HAWK staking are live via MCv1. MCv3 will be funded by HAWK transfers from

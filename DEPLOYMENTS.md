@@ -46,6 +46,22 @@ generated `0xE2ec…5147`, which was never used and holds nothing.
 | 4 | TickLens | `0xd0EEc8981C05AA0919C4bE972d4F3a42dC9518FD` | pending (rate-limited) |
 | 4 | HawkingInterfaceMulticall | `0xD6aE563d02F89DEC2437E01632359ad997BE46FA` | pending (rate-limited) |
 
+| 5 | Vault (infinity) | `0xe0785d1F460C89e6665645f7188E5E3C9E42c6b8` | pending (rate-limited) |
+| 5 | CLPoolManager | `0xA50a8A0867d7ACc239D71e6CBb0072F9c49aC87B` | pending (rate-limited) |
+| 5 | BinPoolManager | `0x1085E6a51E7e9575d3808479b0D6Fa89eAB07d9E` | pending (rate-limited) |
+| 5 | CL/Bin ProtocolFeeControllers | `0x28EeB6…0f30` / `0x7C376a…1199` | pending (rate-limited) |
+| 5 | CLPositionManager | `0x4Ac28f614D735FD5c664DDbB51C9FDEc47992828` | pending (rate-limited) |
+| 5 | BinPositionManager | `0x99ddB0Cf91E45DE1fA0f15F8DC7a5F2D240574A0` | pending (rate-limited) |
+| 5 | CLPositionDescriptor (off-chain) | `0x85ED0ABe1b308b7370358ff45EC5319847dd3A46` | pending (rate-limited) |
+| 5 | CLQuoter / BinQuoter / CLTickLens | `0x8346DC…e7E9` / `0xc7DD71…15bC8` / `0x148556…95C2` | pending (rate-limited) |
+
+Phase 5 deployed 2026-08-03 via `scripts/deploy-infinity.sh` (core pinned upstream
+`397723e`; vault↔pool-manager apps registered, fee controllers set). First CL pool
+seeded via `SeedInfinity.s.sol`: tUSDC/tUSDT 0.01%, tickSpacing 1, full-range 2000e6
+liquidity through CLPositionManager (Permit2 flow). Verified on-chain: idempotent
+re-run reads pool as initialized+funded; CLQuoter static quote 10 tUSDC → 9.948773
+tUSDT ✔. No tx-swap entrypoint yet — universal router is the next phase.
+
 Phase 3 deployed 2026-08-03 via `contracts/farms/scripts/deploy.js`. HAWK + NEST
 ownership → MasterChef (irreversible, standard MCv1); emissions 1 HAWK/block + 10% dev
 cut to deployer. Pools (registry `farms.pools`): 0 HAWK staking (1000), 1 HAWK/WETH LP

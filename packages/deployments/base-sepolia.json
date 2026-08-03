@@ -35,7 +35,19 @@
     "HawkingInterfaceMulticall": "0xD6aE563d02F89DEC2437E01632359ad997BE46FA",
     "poolInitCodeHash": "0x2c9f5653989ede03d6a329c69ee5e31f7587fdbf4cb8a0209028a9f095033da5"
   },
-  "infinity": {},
+  "infinity": {
+    "Vault": "0xe0785d1F460C89e6665645f7188E5E3C9E42c6b8",
+    "CLPoolManager": "0xA50a8A0867d7ACc239D71e6CBb0072F9c49aC87B",
+    "BinPoolManager": "0x1085E6a51E7e9575d3808479b0D6Fa89eAB07d9E",
+    "CLProtocolFeeController": "0x28EeB64A2dAFBf290d729f49FE56352AeF800f30",
+    "BinProtocolFeeController": "0x7C376ae0A63eaca18C29AA88A004311fA54f1199",
+    "CLPositionDescriptor": "0x85ED0ABe1b308b7370358ff45EC5319847dd3A46",
+    "CLPositionManager": "0x4Ac28f614D735FD5c664DDbB51C9FDEc47992828",
+    "BinPositionManager": "0x99ddB0Cf91E45DE1fA0f15F8DC7a5F2D240574A0",
+    "CLQuoter": "0x8346DCbAa103Ea12c413469A7bb88d6571F7e7E9",
+    "BinQuoter": "0xc7DD71AAbfE5D9aE712e5093f43bA69243015bC8",
+    "CLTickLens": "0x1485565CD4B1663A6472A0bE5Fb97f20B93695C2"
+  },
   "farms": {
     "NestBar": "0x8f7BE274b5e85C4b244CAe562AeBf023f70a185f",
     "MasterChef": "0x30cCe7f0eE4314Ca353cC16ecaAcb2E2aE4E6963",
