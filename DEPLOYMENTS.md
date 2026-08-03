@@ -35,6 +35,25 @@ generated `0xE2ec…5147`, which was never used and holds nothing.
 | 2 | HawkingFactory | `0x8F2F1F21AaFfEC52E6A390E922E784bEA9E7D8C4` | pending (rate-limited) |
 | 2 | HawkingRouter (02) | `0x57B76A5a7abAF54Ba7f88b402863CD313667B380` | pending (rate-limited) |
 
+| 4 | HawkingV3PoolDeployer | `0x2E2530dFbcb1bcCdf10Bf8Cd53179217d8264565` | pending (rate-limited) |
+| 4 | HawkingV3Factory | `0xf5c64e43dfF3CA1D6B64ebE13C857ae14fc41C61` | pending (rate-limited) |
+| 4 | SwapRouter (v3) | `0x4f8dBB1545F49CBfDeC3CC3693548f7a1FAEf17D` | pending (rate-limited) |
+| 4 | NFT PositionDescriptor (off-chain) | `0x1D67c1ae79fA8482196294140ec40AC74eA2FD88` | pending (rate-limited) |
+| 4 | NonfungiblePositionManager | `0x85d440B2Bf52243239bb35D8BCeA865596cDc371` | pending (rate-limited) |
+| 4 | QuoterV2 | `0x2D4CB92B4282A2185063Fe8D9D4DA1e88342e220` | pending (rate-limited) |
+| 4 | TickLens | `0xd0EEc8981C05AA0919C4bE972d4F3a42dC9518FD` | pending (rate-limited) |
+| 4 | HawkingInterfaceMulticall | `0xD6aE563d02F89DEC2437E01632359ad997BE46FA` | pending (rate-limited) |
+
+Phase 4 deployed 2026-08-03 via `contracts/v3/periphery/scripts/deploy.js` + `seed-pools.js`.
+**v3 POOL_INIT_CODE_HASH = `0x2c9f5653989ede03d6a329c69ee5e31f7587fdbf4cb8a0209028a9f095033da5`**
+(recomputed after rebrand — pool/deployer at solc 0.7.6, istanbul, optimizer 400 runs,
+metadata bytecodeHash none; patched into periphery `PoolAddress.sol`, stored in registry
+`v3.poolInitCodeHash`; frontend v3-sdk MUST use it). Callback ABI renamed
+`pancakeV3*Callback` → `hawkingV3*Callback` consistently across core+periphery.
+Wiring: poolDeployer.setFactoryAddress(factory) done. 3 pools seeded full-range:
+HAWK/WETH 0.25% (`0x00bE0e0d…78c9`), WETH/tUSDC 0.05% (`0xb36477fA…5A82`),
+tUSDC/tUSDT 0.01% (`0xa105b113…52ec`). Live smoke swap: 10 tUSDC → 9.979043 tUSDT ✔
+
 Phase 2 deployed 2026-08-03 via `contracts/v2/scripts/deploy.js` + `seed-liquidity.js`.
 **v2 INIT_CODE_PAIR_HASH = `0xdd198c2e09078ada1f08cf8af11ae51f6440888c218c1a1062b3ef1048c30b7e`**
 (recomputed after rebrand, patched into HawkingLibrary.pairFor, cross-checked against

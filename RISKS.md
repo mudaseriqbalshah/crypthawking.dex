@@ -2,6 +2,14 @@
 
 Running log of anything guessed, stubbed, or blocked. Newest first.
 
+- **2026-08-03 — v3 NFT descriptor is the off-chain variant with a stub base URI.**
+  `NonfungibleTokenPositionDescriptorOffChain` initialized with
+  `https://dex.cryptohawking.com/api/v3/nft/` — that API route doesn't exist yet
+  (apps/api phase must serve position-NFT metadata there, or we redeploy NPM with the
+  on-chain SVG descriptor later). Position NFTs work; only their tokenURI metadata 404s.
+  Also deferred from v3-periphery: V3Migrator deployment (needs v2 pair linkage — farms/
+  later), SmartRouter (upstream removed it from pancake-v3-contracts; frontend may need
+  the standalone smart-router package instead — decide in frontend phase).
 - **2026-08-03 — source verification backlog (Blockscout 429s).** This IP is currently
   hard-throttled by Blockscout's API. Unverified: tDAI, Faucet, HawkingFactory,
   HawkingRouter. All submissions are one command each (see contracts/*/README.md);

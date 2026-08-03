@@ -24,7 +24,17 @@
     "HawkingRouter": "0x57B76A5a7abAF54Ba7f88b402863CD313667B380",
     "initCodePairHash": "0xdd198c2e09078ada1f08cf8af11ae51f6440888c218c1a1062b3ef1048c30b7e"
   },
-  "v3": {},
+  "v3": {
+    "HawkingV3PoolDeployer": "0x2E2530dFbcb1bcCdf10Bf8Cd53179217d8264565",
+    "HawkingV3Factory": "0xf5c64e43dfF3CA1D6B64ebE13C857ae14fc41C61",
+    "SwapRouter": "0x4f8dBB1545F49CBfDeC3CC3693548f7a1FAEf17D",
+    "NonfungibleTokenPositionDescriptorOffChain": "0x1D67c1ae79fA8482196294140ec40AC74eA2FD88",
+    "NonfungiblePositionManager": "0x85d440B2Bf52243239bb35D8BCeA865596cDc371",
+    "QuoterV2": "0x2D4CB92B4282A2185063Fe8D9D4DA1e88342e220",
+    "TickLens": "0xd0EEc8981C05AA0919C4bE972d4F3a42dC9518FD",
+    "HawkingInterfaceMulticall": "0xD6aE563d02F89DEC2437E01632359ad997BE46FA",
+    "poolInitCodeHash": "0x2c9f5653989ede03d6a329c69ee5e31f7587fdbf4cb8a0209028a9f095033da5"
+  },
   "infinity": {},
   "farms": {}
 }
