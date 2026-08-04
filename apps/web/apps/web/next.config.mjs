@@ -80,23 +80,7 @@ const config = {
   reactStrictMode: true,
   images: {
     contentDispositionType: 'attachment',
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'static-nft.pancakeswap.com',
-        pathname: '/mainnet/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'assets.pancakeswap.finance',
-        pathname: '/web/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'tokens.pancakeswap.finance',
-        pathname: '/web/**',
-      }
-    ],
+    remotePatterns: [],
   },
   async rewrites() {
     return {
@@ -112,10 +96,6 @@ const config = {
         {
           source: '/.well-known/vercel/flags',
           destination: '/api/vercel/flags',
-        },
-        {
-          source: '/perp/:path*',
-          destination: 'https://perp.pancakeswap.finance/perp/:path*',
         },
       ],
     }
@@ -182,11 +162,6 @@ const config = {
         permanent: true,
       },
       {
-        source: '/affiliates-program/:path*',
-        destination: '/',
-        permanent: true,
-      },
-      {
         source: '/farms/archived',
         destination: '/farms/history',
         permanent: true,
@@ -220,11 +195,6 @@ const config = {
         source: '/info/pools/:address',
         destination: '/info/pairs/:address',
         permanent: true,
-      },
-      {
-        source: '/images/tokens/:address',
-        destination: 'https://tokens.pancakeswap.finance/images/:address',
-        permanent: false,
       }
     ]
   },
