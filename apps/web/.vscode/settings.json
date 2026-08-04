@@ -1,0 +1,66 @@
+{
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "deno.enablePaths": ["./cli/aptos-codegen"],
+  "deno.config": "./cli/aptos-codegen/deno.jsonc",
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "never"
+  },
+  "editor.formatOnSave": true,
+  "cSpell.words": [
+    "Aptos",
+    "ARBITRUM",
+    "awgmi",
+    "bignumber",
+    "bips",
+    "Brevis",
+    "calldatas",
+    "CLAMM",
+    "CLMM",
+    "CLPOOL",
+    "cobrand",
+    "devnet",
+    "GELATO",
+    "INFI",
+    "ledgerhq",
+    "LINEA",
+    "Merkl",
+    "multicall",
+    "Multichain",
+    "nuqs",
+    "OPBNB",
+    "pancakeswap",
+    "preinstall",
+    "refreshable",
+    "sepolia",
+    "SNBNB",
+    "solana",
+    "stableswap",
+    "stylelint",
+    "tanstack",
+    "tilg",
+    "unserialized",
+    "vecake",
+    "viem",
+    "wagmi",
+    "WBETH",
+    "wbnb",
+    "ZKEVM",
+    "ZKSYNC"
+  ]
+}

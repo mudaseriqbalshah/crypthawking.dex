@@ -1,0 +1,11 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# ALWAYS use this rule for everything
+## DO LIST
+
+
+## DON'T LIST
+- never adjust the `next-env.d.ts` file.
