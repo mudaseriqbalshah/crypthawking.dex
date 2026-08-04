@@ -13,6 +13,20 @@ export const supportedChainIdV4 = [
   ChainId.ARBITRUM_ONE,
 ] as const
 
+// NOTE: ChainId.BASE_SEPOLIA is intentionally NOT in this list.
+// The legacy V2 (classic MasterChef) fetch pipeline (packages/farms/src/index.ts
+// createFarmFetcher -> fetchMasterChefV2Data / fetchMasterChefData in
+// packages/farms/src/v2/fetchFarmsV2.ts) hardcodes `chainId = isTestnet ?
+// ChainId.BSC_TESTNET : ChainId.BSC` and calls `provider({ chainId })` with that
+// hardcoded chain regardless of the actual active chain. This fork's wagmi client
+// config (apps/web/src/utils/wagmi.ts) has no BSC/BSC_TESTNET client (Base Sepolia
+// only per CLAUDE.md), so `provider(...)` resolves to undefined and the
+// `.multicall(...)` call throws, crashing the whole /farms page with an unhandled
+// runtime error. Adding BASE_SEPOLIA here re-enables the effect in
+// apps/web/src/state/farms/hooks.ts (`enabled: supportedChainIdV2.includes(chainId)`)
+// that dispatches this crashing fetch. See RISKS.md for the full writeup — fixing
+// this requires parameterizing createFarmFetcher/fetchMasterChefV2Data by chainId,
+// which is out of scope for the local-config task that added Base Sepolia farms.
 export const supportedChainIdV2 = [
   ChainId.GOERLI,
   ChainId.BSC,
@@ -36,6 +50,7 @@ export const supportedChainIdV3 = [
   ChainId.OPBNB,
   ChainId.OPBNB_TESTNET,
   ChainId.MONAD_TESTNET,
+  ChainId.BASE_SEPOLIA,
 ] as const
 export const supportedChainId = Array.from(new Set<ChainId>([...supportedChainIdV2, ...supportedChainIdV3]))
 export const bCakeSupportedChainId = [
@@ -59,6 +74,7 @@ export type FarmV4SupportedChainId = (typeof supportedChainIdV4)[number]
 export const masterChefAddresses = {
   [ChainId.BSC_TESTNET]: '0xB4A466911556e39210a6bB2FaECBB59E4eB7E43d',
   [ChainId.BSC]: '0xa5f8C5Dbd5F286960b9d90548680aE5ebFf07652',
+  [ChainId.BASE_SEPOLIA]: '0x30cCe7f0eE4314Ca353cC16ecaAcb2E2aE4E6963',
 } as const
 
 export const masterChefV3Addresses = {
@@ -76,6 +92,7 @@ export const masterChefV3Addresses = {
   [ChainId.OPBNB]: '0x05ddEDd07C51739d2aE21F6A9d97a8d69C2C3aaA',
   [ChainId.OPBNB_TESTNET]: '0x236e713bFF45adb30e25D1c29A887aBCb0Ea7E21',
   [ChainId.MONAD_TESTNET]: '0x',
+  [ChainId.BASE_SEPOLIA]: '0x8DBd87Df712413b963d921a6C928cb7212Ab84F6',
 } as const satisfies Record<FarmV3SupportedChainId, string>
 
 export const crossFarmingVaultAddresses = {

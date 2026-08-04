@@ -2,11 +2,18 @@ import { ChainId } from '@pancakeswap/chains'
 import { ERC20Token, Native } from '@pancakeswap/sdk'
 import { isAddressEqual, zeroAddress } from 'viem'
 import { FARMS_API } from '../config/endpoint'
+import { baseSepoliaFarmConfig } from './farms/baseSepolia'
 import { Protocol, UniversalFarmConfig } from './types'
 
 const farmCache: Record<string, UniversalFarmConfig[]> = {}
 
 export const fetchUniversalFarms = async (chainId: ChainId, protocol?: Protocol) => {
+  // Base Sepolia has no PancakeSwap-hosted farms API — always serve local config.
+  if (chainId === ChainId.BASE_SEPOLIA) {
+    const farms = protocol ? baseSepoliaFarmConfig.filter((f) => f.protocol === protocol) : baseSepoliaFarmConfig
+    return farms
+  }
+
   const cacheKey = `${chainId}-${protocol || 'all'}`
 
   // Return cached data if it exists
