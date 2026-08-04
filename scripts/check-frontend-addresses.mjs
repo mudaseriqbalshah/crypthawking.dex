@@ -51,24 +51,32 @@ const forbidden = [
 ]
 // Deduplicate file list to avoid scanning the same file multiple times
 const files = [...new Set(checks.map(([f]) => f))]
+const reportedForbidden = new Set() // Track (file, addr) pairs to avoid duplicates
 for (const file of files) {
   const src = read(file)
   const lines = src.split('\n')
+  // Collect all line indices containing BASE_SEPOLIA
+  const baseSepioliaLines = []
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].toLowerCase().includes('base_sepolia')) {
+      baseSepioliaLines.push(i)
+    }
+  }
+  // For each forbidden address, check if it appears within any BASE_SEPOLIA window
   for (const addr of forbidden) {
     const addrLower = addr.toLowerCase()
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i]
-      // Check if forbidden address appears on a line with BASE_SEPOLIA or within 3 lines after
-      if (line.toLowerCase().includes('base_sepolia')) {
-        // Check this line and the next 3 lines for the forbidden address
-        for (let j = i; j < Math.min(i + 4, lines.length); j++) {
-          if (lines[j].toLowerCase().includes(addrLower)) {
+    for (const baseIdx of baseSepioliaLines) {
+      // Check this line and the next 3 lines for the forbidden address
+      for (let j = baseIdx; j < Math.min(baseIdx + 4, lines.length); j++) {
+        if (lines[j].toLowerCase().includes(addrLower)) {
+          const key = `${file}:${addr}`
+          if (!reportedForbidden.has(key)) {
             console.error(`FAIL forbidden PancakeSwap addr ${addr} still in ${file}`)
             failed++
-            break
+            reportedForbidden.add(key)
           }
+          break // Move to next BASE_SEPOLIA line for this address
         }
-        break // Only check the first BASE_SEPOLIA context in this check iteration
       }
     }
   }
