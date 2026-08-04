@@ -8,7 +8,15 @@ import { SerializedFarmConfig, SerializedFarmPublicData, UniversalFarmConfig } f
  * @deprecated only used for legacy farms
  */
 export async function getLegacyFarmConfig(chainId?: ChainId): Promise<SerializedFarmPublicData[]> {
-  if (chainId && supportedChainIdV4.includes(chainId as number)) {
+  // Upstream gates the legacy (V2/stable classic-MasterChef) farm config on
+  // `supportedChainIdV4`, which is really "chains that ship a ./farms/<chainName>.ts
+  // file" rather than anything v4-specific. BASE_SEPOLIA ships such a file
+  // (./farms/baseSepolia.ts, exporting `legacyFarmConfig` for pids 0-3) but must NOT
+  // join `supportedChainIdV4` — that list also drives the Merkl APR API, the explorer
+  // farm-pool queries and the farmsV4/Infinity fetchers, none of which know chain
+  // 84532. Allow it explicitly here instead; every other chain keeps the exact same
+  // gate it had before.
+  if (chainId && (supportedChainIdV4.includes(chainId as number) || chainId === ChainId.BASE_SEPOLIA)) {
     const chainName = getChainName(chainId)
     try {
       const config = await import(`./farms/${chainName}.ts`)

@@ -40,7 +40,7 @@ import { safeGetAddress } from 'utils'
 import fetchWithTimeout from 'utils/fetchWithTimeout'
 import { getViemClients } from 'utils/viem'
 import { publicClient } from 'utils/wagmi'
-import { Hex, decodeFunctionResult, encodeFunctionData } from 'viem'
+import { Hex, decodeFunctionResult, encodeFunctionData, formatUnits } from 'viem'
 import { useAccount } from 'wagmi'
 
 export const farmV3ApiFetch = (chainId: number): Promise<FarmsV3Response> =>
@@ -146,7 +146,54 @@ export const useFarmsV3 = ({ mockApr = false, boosterLiquidityX = {} }: UseFarms
         throw new Error('ChainId mismatch')
       }
       const tvls: TvlMap = {}
-      if (supportedChainIdV3.includes(chainId)) {
+      if (chainId === ChainId.BASE_SEPOLIA) {
+        // No subgraph/liquidity-aggregation API exists for this chain (FARMS_API_V2's
+        // /v3/{chainId}/liquidity route 504s — it's PancakeSwap-hosted and has never heard
+        // of chain 84532). Best-effort on-chain proxy instead: total token balances held by
+        // each pool contract, via balanceOf(pool) multicall. This is a real, on-chain
+        // number, but it's the WHOLE pool's liquidity, not just the portion actually staked
+        // into the farm/LM pool for boosted rewards — so TVL (and therefore APR, which
+        // divides by TVL) will read lower than the true staker-only figure. See RISKS.md.
+        const farmsToFetch = farmV3.data.farmsWithPrice.filter((f) => f.poolWeight !== '0')
+        const client = getViemClients({ chainId })
+        if (client && farmsToFetch.length > 0) {
+          const balanceOfAbi = [
+            {
+              inputs: [{ name: 'account', type: 'address' }],
+              name: 'balanceOf',
+              outputs: [{ type: 'uint256' }],
+              stateMutability: 'view',
+              type: 'function',
+            },
+          ] as const
+          try {
+            const calls = farmsToFetch.flatMap((f) => [
+              { address: f.token.address, abi: balanceOfAbi, functionName: 'balanceOf', args: [f.lpAddress] } as const,
+              {
+                address: f.quoteToken.address,
+                abi: balanceOfAbi,
+                functionName: 'balanceOf',
+                args: [f.lpAddress],
+              } as const,
+            ])
+            const results = await client.multicall({ contracts: calls, allowFailure: true })
+            farmsToFetch.forEach((f, i) => {
+              const tokenRes = results[i * 2]
+              const quoteRes = results[i * 2 + 1]
+              const checksummedAddress = safeGetAddress(f.lpAddress)
+              if (checksummedAddress && tokenRes.status === 'success' && quoteRes.status === 'success') {
+                tvls[checksummedAddress] = {
+                  token0: formatUnits(tokenRes.result as bigint, f.token.decimals),
+                  token1: formatUnits(quoteRes.result as bigint, f.quoteToken.decimals),
+                  updatedAt: new Date(),
+                }
+              }
+            })
+          } catch (error) {
+            console.error('Failed to derive on-chain TVL for Base Sepolia farms', error)
+          }
+        }
+      } else if (supportedChainIdV3.includes(chainId)) {
         const farmsToFetch = farmV3.data.farmsWithPrice.filter((f) => f.poolWeight !== '0')
 
         // Chunk farm addresses into batches of 10

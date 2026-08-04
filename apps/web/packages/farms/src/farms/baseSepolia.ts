@@ -44,14 +44,11 @@ export const legacyV3BaseSepoliaFarmConfig = defineFarmV3ConfigsFromUniversalFar
 /**
  * @deprecated legacy V2 (classic MasterChef) farm config for chain 84532.
  *
- * NOTE: as of this fork's `getLegacyFarmConfig` implementation
- * (packages/farms/src/getLegacyFarmConfig.ts), this array is only consumed
- * when the chain is also a member of `supportedChainIdV4` (packages/farms/src/const.ts).
- * BASE_SEPOLIA is intentionally NOT added to `supportedChainIdV4` in this task
- * (that list also drives farmsV4/Infinity + external Merkl APR fetchers that are
- * out of scope until Task 9 lands real Infinity infra), so these V2 farms are
- * defined for completeness/future wiring but do not currently render on /farms.
- * See RISKS.md for details.
+ * Consumed by `getLegacyFarmConfig` (packages/farms/src/getLegacyFarmConfig.ts), which
+ * allows BASE_SEPOLIA explicitly rather than via `supportedChainIdV4` (that list also
+ * drives farmsV4/Infinity + the external Merkl APR fetchers, which know nothing about
+ * chain 84532 — see the comment there). pid 0 is HAWK single-staking, whose "LP address"
+ * is the HAWK token itself, matching MasterChef pool 0.
  */
 export const legacyFarmConfig: SerializedFarmConfig[] = [
   {

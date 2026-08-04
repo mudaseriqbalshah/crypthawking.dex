@@ -13,20 +13,17 @@ export const supportedChainIdV4 = [
   ChainId.ARBITRUM_ONE,
 ] as const
 
-// NOTE: ChainId.BASE_SEPOLIA is intentionally NOT in this list.
-// The legacy V2 (classic MasterChef) fetch pipeline (packages/farms/src/index.ts
-// createFarmFetcher -> fetchMasterChefV2Data / fetchMasterChefData in
-// packages/farms/src/v2/fetchFarmsV2.ts) hardcodes `chainId = isTestnet ?
-// ChainId.BSC_TESTNET : ChainId.BSC` and calls `provider({ chainId })` with that
-// hardcoded chain regardless of the actual active chain. This fork's wagmi client
-// config (apps/web/src/utils/wagmi.ts) has no BSC/BSC_TESTNET client (Base Sepolia
-// only per CLAUDE.md), so `provider(...)` resolves to undefined and the
-// `.multicall(...)` call throws, crashing the whole /farms page with an unhandled
-// runtime error. Adding BASE_SEPOLIA here re-enables the effect in
-// apps/web/src/state/farms/hooks.ts (`enabled: supportedChainIdV2.includes(chainId)`)
-// that dispatches this crashing fetch. See RISKS.md for the full writeup — fixing
-// this requires parameterizing createFarmFetcher/fetchMasterChefV2Data by chainId,
-// which is out of scope for the local-config task that added Base Sepolia farms.
+// ChainId.BASE_SEPOLIA: the legacy V2 (classic MasterChef) fetch pipeline
+// (packages/farms/src/index.ts createFarmFetcher -> fetchMasterChefV2Data /
+// fetchMasterChefData in packages/farms/src/v2/fetchFarmsV2.ts) used to hardcode
+// `chainId = isTestnet ? ChainId.BSC_TESTNET : ChainId.BSC` and call
+// `provider({ chainId })` with that hardcoded chain regardless of the actual active
+// chain — this fork's wagmi client config has no BSC/BSC_TESTNET client (Base Sepolia
+// only per CLAUDE.md), so that used to throw and crash the whole /farms page. Both
+// functions are now chainId-aware (they use the real `chainId` param and
+// `masterChefAddresses[chainId]`, falling back to the old BSC/BSC_TESTNET guess only
+// for chains with no masterChefAddresses entry — BSC/BSC_TESTNET behavior is
+// unchanged), so BASE_SEPOLIA is safe to include here. See RISKS.md (resolved entry).
 export const supportedChainIdV2 = [
   ChainId.GOERLI,
   ChainId.BSC,
@@ -34,6 +31,7 @@ export const supportedChainIdV2 = [
   ChainId.ETHEREUM,
   ChainId.ARBITRUM_ONE,
   ChainId.MONAD_TESTNET,
+  ChainId.BASE_SEPOLIA,
 ] as const
 export const supportedChainIdV3 = [
   // ChainId.GOERLI,

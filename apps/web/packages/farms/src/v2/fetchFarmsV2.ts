@@ -48,11 +48,83 @@ const evmNativeStableLpMap: Record<
     wNative: 'MON',
     stable: 'USDC',
   },
+  [ChainId.BASE_SEPOLIA]: {
+    // Our own tUSDC-WETH V2 pair (pid 2, packages/farms/src/farms/baseSepolia.ts). Anchors
+    // getFarmsPrices' on-chain-reserve-derived WETH/USD price (tUSDC pegged $1), which then
+    // cascades to HAWK and every other V2 farm via each farm's own tokenPriceVsQuote — no
+    // external price feed needed.
+    address: '0x832E6D2DdA6D6d47459c0b09A37e2b334aBb2f8e',
+    wNative: 'WETH',
+    stable: 'tUSDC',
+  },
 }
 
 export const getTokenAmount = (balance: BN, decimals: number) => {
   return balance.div(getFullDecimalMultiplier(decimals))
 }
+
+/**
+ * Chains whose deployed classic-farm chef is the ORIGINAL MasterChef (v1), not
+ * PancakeSwap's MasterChefV2. The two are ABI-incompatible on every call this file
+ * makes:
+ *
+ *   MasterChefV2                        MasterChef (v1)
+ *   ------------------------------      --------------------------------------------
+ *   totalRegularAllocPoint()            totalAllocPoint()
+ *   totalSpecialAllocPoint()            (does not exist -> treated as 0)
+ *   cakePerBlock(bool _isRegular)       cakePerBlock()
+ *   poolInfo(pid) -> (accCakePerShare,  poolInfo(pid) -> (lpToken, allocPoint,
+ *     lastRewardBlock, allocPoint,        lastRewardBlock, accCakePerShare)
+ *     totalBoostedShare, isRegular)
+ *
+ * Calling the V2 ABI against a v1 chef reverts, which used to make the whole V2 farm
+ * fetch reject and leave every V2 farm row stuck in its "not ready" skeleton state.
+ * CryptoHawking's Base Sepolia chef (packages/deployments/base-sepolia.json ->
+ * MasterChef 0x30cCe7f0eE4314Ca353cC16ecaAcb2E2aE4E6963, source
+ * contracts/farms/contracts/MasterChef.sol) is a v1 chef, verified on-chain.
+ *
+ * Everything below branches on this list only; chains absent from it (BSC, BSC_TESTNET,
+ * ETHEREUM, ARBITRUM_ONE, GOERLI, MONAD_TESTNET) take the byte-identical original path.
+ */
+const CLASSIC_MASTERCHEF_V1_CHAIN_IDS: number[] = [ChainId.BASE_SEPOLIA]
+
+const isClassicMasterChefV1 = (chainId: number) => CLASSIC_MASTERCHEF_V1_CHAIN_IDS.includes(chainId)
+
+const masterChefV1Abi = [
+  {
+    inputs: [],
+    name: 'poolLength',
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'totalAllocPoint',
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'cakePerBlock',
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    name: 'poolInfo',
+    outputs: [
+      { internalType: 'contract IBEP20', name: 'lpToken', type: 'address' },
+      { internalType: 'uint256', name: 'allocPoint', type: 'uint256' },
+      { internalType: 'uint256', name: 'lastRewardBlock', type: 'uint256' },
+      { internalType: 'uint256', name: 'accCakePerShare', type: 'uint256' },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+] as const
 
 export type FetchFarmsParams = {
   farms: SerializedFarmConfig[]
@@ -67,7 +139,6 @@ export type FetchFarmsParams = {
 export async function farmV2FetchFarms({
   farms,
   provider,
-  isTestnet,
   masterChefAddress,
   chainId,
   totalRegularAllocPoint,
@@ -81,7 +152,7 @@ export async function farmV2FetchFarms({
 
   const [stableFarmsResults, poolInfos, lpDataResults] = await Promise.all([
     fetchStableFarmData(stableFarms, chainId, provider),
-    fetchMasterChefData(farms, isTestnet, provider, masterChefAddress),
+    fetchMasterChefData(farms, chainId, provider, masterChefAddress),
     fetchPublicFarmsData(farms, chainId, provider, masterChefAddress),
   ])
 
@@ -115,12 +186,26 @@ export async function farmV2FetchFarms({
               token1Decimals: farm.quoteToken.decimals,
             })),
         // TODO: remove hardcode allocPoint & totalRegularAllocPoint later
-        ...getFarmAllocation({
-          allocPoint: BigInt(farm?.allocPoint ?? 0) ?? poolInfos[index]?.allocPoint,
-          isRegular: poolInfos[index]?.isRegular,
-          totalRegularAllocPoint: BigInt(2305) || totalRegularAllocPoint,
-          totalSpecialAllocPoint,
-        }),
+        // NOTE: the hardcodes below are upstream's (and note `BigInt(x ?? 0) ?? y` can
+        // never fall through to `y`, so allocPoint is always the config value). They are
+        // kept verbatim for every existing chain. Chains on a v1 chef have no such
+        // upstream-tuned config to preserve, so they use the real on-chain numbers the
+        // multicalls above already fetched.
+        ...getFarmAllocation(
+          isClassicMasterChefV1(chainId)
+            ? {
+                allocPoint: poolInfos[index]?.allocPoint,
+                isRegular: poolInfos[index]?.isRegular,
+                totalRegularAllocPoint,
+                totalSpecialAllocPoint,
+              }
+            : {
+                allocPoint: BigInt(farm?.allocPoint ?? 0) ?? poolInfos[index]?.allocPoint,
+                isRegular: poolInfos[index]?.isRegular,
+                totalRegularAllocPoint: BigInt(2305) || totalRegularAllocPoint,
+                totalSpecialAllocPoint,
+              },
+        ),
       }
     } catch (error) {
       console.error(error, farm, index, {
@@ -152,7 +237,16 @@ export async function farmV2FetchFarms({
     return acc
   }, new Map<string, CurrencyParams>())
   const tokenInfoList = Array.from(tokensWithoutPrice.values())
-  if (tokenInfoList.length) {
+  // `getCurrencyListUsdPrice` is PancakeSwap's hosted price API, which has no coverage for
+  // chain 84532 (and which this fork must not depend on — see CLAUDE.md rule 1). It throws
+  // rather than resolving empty when unreachable/unconfigured, and that rejection propagates
+  // all the way out of `farmV2FetchFarms`, so a single unpriced test token would leave every
+  // V2 farm row permanently stuck in its loading skeleton. Prices for this chain come from
+  // `getFarmsPrices` above instead, cascading on-chain V2 reserve ratios out of the
+  // tUSDC/WETH anchor pair in `evmNativeStableLpMap`; anything it still can't price keeps
+  // its '0' and simply renders blank. Every other chain keeps the original behavior.
+  const canUseExternalPriceApi = !isClassicMasterChefV1(chainId)
+  if (tokenInfoList.length && canUseExternalPriceApi) {
     const prices = await getCurrencyListUsdPrice(tokenInfoList)
 
     return farmsDataWithPrices.map((f) => {
@@ -247,15 +341,51 @@ function notEmpty<TValue>(value: TValue | null | undefined): value is TValue {
 
 export const fetchMasterChefData = async (
   farms: SerializedFarmConfig[],
-  isTestnet: boolean,
+  chainId: number,
   provider: ({ chainId }: { chainId: number }) => PublicClient,
   masterChefAddress: string,
 ) => {
+  if (isClassicMasterChefV1(chainId)) {
+    try {
+      const calls = farms.map((farm) =>
+        farm.pid || farm.pid === 0
+          ? ({
+              abi: masterChefV1Abi,
+              address: masterChefAddress as Address,
+              functionName: 'poolInfo',
+              args: [BigInt(farm.pid)],
+            } as const)
+          : null,
+      )
+      const aggregated = calls.filter(notEmpty)
+      const results = await provider({ chainId }).multicall({ contracts: aggregated, allowFailure: false })
+
+      let counter = 0
+      return calls.map((call) => {
+        if (call === null) return null
+        // v1 poolInfo tuple order: (lpToken, allocPoint, lastRewardBlock, accCakePerShare)
+        const data = results[counter]
+        counter++
+        return {
+          accCakePerShare: data[3],
+          lastRewardBlock: data[2],
+          allocPoint: data[1],
+          // v1 has no boost mechanism and no regular/special split; every pool is "regular"
+          // so getFarmAllocation divides by totalRegularAllocPoint (= v1 totalAllocPoint).
+          totalBoostedShare: 0n,
+          isRegular: true,
+        }
+      })
+    } catch (error) {
+      console.error('MasterChef (v1) Pool info data error', error)
+      throw error
+    }
+  }
+
   try {
     const masterChefCalls = farms.map((farm) => masterChefFarmCalls(farm, masterChefAddress))
     const masterChefAggregatedCalls = masterChefCalls.filter(notEmpty)
 
-    const chainId = isTestnet ? ChainId.BSC_TESTNET : ChainId.BSC
     const masterChefMultiCallResult = await provider({ chainId }).multicall({
       contracts: masterChefAggregatedCalls,
       allowFailure: false,
@@ -284,15 +414,39 @@ export const fetchMasterChefData = async (
 
 export const fetchMasterChefV2Data = async ({
   provider,
-  isTestnet,
+  chainId,
   masterChefAddress,
 }: {
   provider: ({ chainId }: { chainId: number }) => PublicClient
-  isTestnet: boolean
+  chainId: number
   masterChefAddress: Address
 }) => {
+  if (isClassicMasterChefV1(chainId)) {
+    try {
+      const [poolLength, totalAllocPoint, cakePerBlock] = await provider({ chainId }).multicall({
+        contracts: [
+          { abi: masterChefV1Abi, address: masterChefAddress, functionName: 'poolLength' },
+          { abi: masterChefV1Abi, address: masterChefAddress, functionName: 'totalAllocPoint' },
+          { abi: masterChefV1Abi, address: masterChefAddress, functionName: 'cakePerBlock' },
+        ],
+        allowFailure: false,
+      })
+
+      return {
+        poolLength,
+        totalRegularAllocPoint: totalAllocPoint,
+        // v1 has no special pools; a 0 here is only ever divided into by pools flagged
+        // isRegular === false, and the v1 branch above flags every pool regular.
+        totalSpecialAllocPoint: 0n,
+        cakePerBlock,
+      }
+    } catch (error) {
+      console.error('Get MasterChef (v1) data error', error)
+      throw error
+    }
+  }
+
   try {
-    const chainId = isTestnet ? ChainId.BSC_TESTNET : ChainId.BSC
     const [poolLength, totalRegularAllocPoint, totalSpecialAllocPoint, cakePerBlock] = await provider({
       chainId,
     }).multicall({
