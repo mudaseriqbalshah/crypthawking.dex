@@ -2,6 +2,15 @@
 
 Running log of anything guessed, stubbed, or blocked. Newest first.
 
+- **2026-08-04 — frontend Infinity SDK: 5 contracts unsupported on Base Sepolia (Task 9).**
+  `INFI_MIXED_QUOTER_ADDRESSES`, `INFI_CL_MIGRATOR_ADDRESSES`, `INFI_BIN_MIGRATOR_ADDRESSES`,
+  `INFI_CL_LP_FEES_HELPER_ADDRESSES`, `INFI_FARMING_DISTRIBUTOR_ADDRESSES` (all in
+  `apps/web/packages/infinity-sdk/src/constants/addresses.ts`) point at the zero address for
+  `ChainId.BASE_SEPOLIA` — none of these are deployed on 84532. Vault, CLPoolManager,
+  BinPoolManager, CLPositionManager, BinPositionManager, CLQuoter, BinQuoter,
+  CLProtocolFeeController, BinProtocolFeeController and CLTickLens are all live and wired
+  to the addresses in `packages/deployments/base-sepolia.json`.
+
 - **2026-08-04 — frontend farms (Task 8 fix round): RESOLVED — V2 farms now render with
   live on-chain data, and HAWK/USD is derived on-chain with zero BSC/Chainlink
   dependency.** Supersedes the two Task 8 entries below (kept for history).

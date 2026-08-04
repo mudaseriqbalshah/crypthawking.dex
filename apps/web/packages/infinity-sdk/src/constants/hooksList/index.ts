@@ -8,6 +8,8 @@ export const hooksList = {
   [ChainId.BSC_TESTNET]: bscTestnetHooksList,
   [ChainId.BASE]: baseHooksList,
   [ChainId.SEPOLIA]: [],
+  // No hooks deployed on Base Sepolia yet
+  [ChainId.BASE_SEPOLIA]: [],
 }
 
 export const dynamicHooksList = {
@@ -15,6 +17,8 @@ export const dynamicHooksList = {
   [ChainId.BSC_TESTNET]: bscTestnetDynamicHooks,
   [ChainId.BASE]: baseDynamicHooks,
   [ChainId.SEPOLIA]: [],
+  // No hooks deployed on Base Sepolia yet
+  [ChainId.BASE_SEPOLIA]: [],
 }
 
 export function findHook(hook: string, chainId: ChainId) {

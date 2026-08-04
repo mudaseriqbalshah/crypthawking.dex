@@ -69,6 +69,8 @@ export const CL_HOOK_PRESETS_BY_CHAIN: { [key in InfinitySupportedChains]: HookP
       }),
   ],
   [ChainId.SEPOLIA]: [EMPTY_HOOK],
+  // No hooks deployed on Base Sepolia — see RISKS.md
+  [ChainId.BASE_SEPOLIA]: [EMPTY_HOOK],
 }
 function getBinHookPreset(x: HookData) {
   const hook = {
@@ -115,6 +117,8 @@ export const BIN_HOOK_PRESETS_BY_CHAIN: { [key in InfinitySupportedChains]: Hook
       }),
   ],
   [ChainId.SEPOLIA]: [EMPTY_HOOK],
+  // No hooks deployed on Base Sepolia — see RISKS.md
+  [ChainId.BASE_SEPOLIA]: [EMPTY_HOOK],
 }
 
 type CLPoolPreset = {
@@ -153,6 +157,7 @@ export const CL_PRESETS_BY_CHAIN: { [key in InfinitySupportedChains]: CLPoolPres
   [ChainId.BSC_TESTNET]: DEFAULT_CL_PRESETS,
   [ChainId.BASE]: DEFAULT_CL_PRESETS,
   [ChainId.SEPOLIA]: DEFAULT_CL_PRESETS,
+  [ChainId.BASE_SEPOLIA]: DEFAULT_CL_PRESETS,
 }
 
 export const CL_PRESETS: {
@@ -189,4 +194,5 @@ export const BIN_PRESETS_BY_CHAIN: { [key in InfinitySupportedChains]: BinPoolPr
   [ChainId.BSC_TESTNET]: DEFAULT_BIN_PRESETS,
   [ChainId.BASE]: DEFAULT_BIN_PRESETS,
   [ChainId.SEPOLIA]: DEFAULT_BIN_PRESETS,
+  [ChainId.BASE_SEPOLIA]: DEFAULT_BIN_PRESETS,
 }
