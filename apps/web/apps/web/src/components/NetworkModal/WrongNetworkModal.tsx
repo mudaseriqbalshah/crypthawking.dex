@@ -1,13 +1,22 @@
 import { ChainId } from '@pancakeswap/chains'
 import { useTranslation } from '@pancakeswap/localization'
-import { ArrowForwardIcon, Button, FlexGap, Grid, Message, MessageText, Modal, Text } from '@pancakeswap/uikit'
+import {
+  ArrowForwardIcon,
+  Button,
+  FlexGap,
+  Grid,
+  LogoIcon,
+  Message,
+  MessageText,
+  Modal,
+  Text,
+} from '@pancakeswap/uikit'
 import { ChainLogo } from 'components/Logo/ChainLogo'
 import { CHAIN_QUERY_NAME } from 'config/chains'
 import { queryChainIdAtom } from 'hooks/useActiveChainId'
 import useAuth from 'hooks/useAuth'
 import { useSwitchNetwork } from 'hooks/useSwitchNetwork'
 import { useAtom } from 'jotai'
-import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { useCallback } from 'react'
 import { Chain } from 'viem'
@@ -73,7 +82,7 @@ export function WrongNetworkModal({ currentChain, onDismiss }: { currentChain: C
           })}
         </Text>
         <div style={{ textAlign: 'center' }}>
-          <Image width={184} height={140} src="/images/decorations/3d-pan-bunny.png" alt="check your network" />
+          <LogoIcon width="140px" height="140px" />
         </div>
         <Message variant="warning" icon={false} p="8px 12px">
           <MessageText>

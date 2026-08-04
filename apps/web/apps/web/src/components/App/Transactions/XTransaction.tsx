@@ -50,7 +50,7 @@ export function XTransaction({ order }: { order: GetXOrderReceiptResponseOrder }
         onClick={modal.onOpen}
         status={status}
         title={
-          <TransactionListItemTitle>PancakeSwap X ({getFullChainNameById(order.chainId)})</TransactionListItemTitle>
+          <TransactionListItemTitle>CryptoHawking X ({getFullChainNameById(order.chainId)})</TransactionListItemTitle>
         }
         action={
           <FlexGap gap="0.25rem" justifyContent="flex-end">

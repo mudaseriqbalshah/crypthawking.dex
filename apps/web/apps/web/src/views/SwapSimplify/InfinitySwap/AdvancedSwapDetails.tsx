@@ -205,7 +205,7 @@ export const TradeSummary = memo(function TradeSummary({
             <QuestionHelperV2
               text={
                 <>
-                  <Text>{t('Fees saved on PancakeSwap compared to major DEXs charging interface fees.')}</Text>
+                  <Text>{t('Fees saved on CryptoHawking compared to major DEXs charging interface fees.')}</Text>
                 </>
               }
               placement="top"
@@ -310,7 +310,7 @@ export const TradeSummary = memo(function TradeSummary({
                     <Text bold display="inline-block">
                       {t('X')}
                     </Text>
-                    : {t('No fee when trading through PancakeSwap X (subject to change).')}
+                    : {t('No fee when trading through CryptoHawking X (subject to change).')}
                   </Text>
                 </>
               }

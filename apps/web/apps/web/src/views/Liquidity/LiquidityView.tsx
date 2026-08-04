@@ -538,7 +538,7 @@ export const LiquidityView = () => {
           <Text display="inline" bold mr="0.25em">{`${currencyQuote?.symbol}-${currencyBase?.symbol}`}</Text>
           <Text display="inline">
             {t(
-              'has an active PancakeSwap farm. Stake your position in the farm to start earning with the indicated APR with CAKE farming.',
+              'has an active CryptoHawking farm. Stake your position in the farm to start earning with the indicated APR with HAWK farming.',
             )}
           </Text>
           <NextLinkFromReactRouter to="/liquidity/pools">

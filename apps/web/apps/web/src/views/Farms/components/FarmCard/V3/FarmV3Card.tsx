@@ -61,7 +61,7 @@ export const FarmV3Card: React.FC<React.PropsWithChildren<FarmCardProps>> = ({ f
   const lpLabel = farm.lpSymbol && farm.lpSymbol.replace(/pancake/gi, '')
   const earnLabel = t('CAKE + Fees')
   const { lpAddress } = farm
-  const isPromotedFarm = farm.token.symbol === 'CAKE'
+  const isPromotedFarm = farm.token.symbol === 'HAWK'
   const merklUserLink = useMerklUserLink()
   const merklLink = getMerklLink({ chainId, lpAddress })
   const { merklApr } = useMerklInfo(merklLink ? lpAddress : undefined)
@@ -81,7 +81,7 @@ export const FarmV3Card: React.FC<React.PropsWithChildren<FarmCardProps>> = ({ f
     <>
       <Text>
         {t(
-          'Global APR calculated using the total amount of active & staked liquidity with the pool CAKE reward emissions.',
+          'Global APR calculated using the total amount of active & staked liquidity with the pool HAWK reward emissions.',
         )}
       </Text>
       <br />

@@ -79,14 +79,16 @@ export const useAdConfig = () => {
     [shouldRenderOnPage, shouldRenderAdIfo, commonAdConfigs, tradingCompetitionAds],
   )
 
-  return useMemo(
-    () =>
-      adList
-        .filter((ad) => ad.shouldRender === undefined || ad.shouldRender.every(Boolean))
-        .sort((a, b) => (b.priority || Priority.VERY_LOW) - (a.priority || Priority.VERY_LOW))
-        .slice(0, MAX_ADS),
-    [adList, MAX_ADS],
-  )
+  // CryptoHawking testnet: the upstream ad panel is entirely PancakeSwap promotional
+  // campaigns (Solana liquidity, cross-chain swap launches, IFOs, trading competitions,
+  // Springboard, PCSX) that don't apply to this fork. Disabled outright rather than
+  // rebranding copy for campaigns that don't exist here — see RISKS.md. `adList` is still
+  // computed above so hook order stays stable across renders.
+  return useMemo(() => {
+    void adList
+    void MAX_ADS
+    return [] as Array<AdSlide>
+  }, [adList, MAX_ADS])
 }
 
 // Array of strings or regex patterns

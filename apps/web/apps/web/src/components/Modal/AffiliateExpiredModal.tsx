@@ -19,7 +19,7 @@ export function AffiliateExpiredModal() {
     <DisclaimerModal
       bodyMaxWidth={['100%', '100%', '100%', '640px']}
       bodyMaxHeight="80vh"
-      modalHeader={t('PancakeSwap Affiliate Program')}
+      modalHeader={t('CryptoHawking Affiliate Program')}
       header={
         <>
           <Text bold fontSize="1.25rem">
@@ -27,7 +27,7 @@ export function AffiliateExpiredModal() {
           </Text>
           <Text mt="1.5rem">
             {t(
-              `Please be informed that the Affiliate who referred you and through whose referral link you signed up to trade is no longer part of PancakeSwap's Affiliate Program. As a result, effective immediately %time%, you will no longer receive any trading discounts from this Affiliate if they were previously enabled.`,
+              `Please be informed that the Affiliate who referred you and through whose referral link you signed up to trade is no longer part of CryptoHawking's Affiliate Program. As a result, effective immediately %time%, you will no longer receive any trading discounts from this Affiliate if they were previously enabled.`,
               {
                 time: '5 Sep 2024',
               },

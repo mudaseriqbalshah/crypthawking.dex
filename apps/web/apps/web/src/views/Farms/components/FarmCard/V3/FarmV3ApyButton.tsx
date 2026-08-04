@@ -251,7 +251,7 @@ function FarmV3ApyButton_({ farm, existingPosition, isPositionStaked, additionAp
       </ul>
       <br />
       <Text>
-        {t('Calculated using the total active liquidity staked versus the CAKE reward emissions for the farm.')}
+        {t('Calculated using the total active liquidity staked versus the HAWK reward emissions for the farm.')}
       </Text>
       <Text mt="15px">{t('APRs for individual positions may vary depending on the configs.')}</Text>
     </>,

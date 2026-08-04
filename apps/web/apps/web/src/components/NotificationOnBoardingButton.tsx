@@ -32,7 +32,7 @@ const getOnBoardingButtonText = (
 
   if (isStep1) return t('Enable Notifications')
   if (isStep2) return t('Sign In With Wallet')
-  if (isStep3) return t('Subscribe To PancakeSwap')
+  if (isStep3) return t('Subscribe To CryptoHawking')
   if (isStep4) return t('Continue')
 
   return t('Enable Notifications')
