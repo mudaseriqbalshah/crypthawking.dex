@@ -75,6 +75,53 @@ export const masterChefAddresses = {
   [ChainId.BASE_SEPOLIA]: '0x30cCe7f0eE4314Ca353cC16ecaAcb2E2aE4E6963',
 } as const
 
+/**
+ * True when `chainId` hosts its OWN classic MasterChef, i.e. it has an entry in
+ * `masterChefAddresses` above.
+ *
+ * This is the gate that decides whether the legacy V2 farm pipeline reads the chef on the
+ * chain's own client or on BSC. It is deliberately keyed off `masterChefAddresses` rather
+ * than off the chef's ABI flavour (`CLASSIC_MASTERCHEF_V1_CHAIN_IDS` in
+ * `v2/fetchFarmsV2.ts`): "where does this chain's chef live" and "which ABI does that chef
+ * speak" are independent questions, and a chain could perfectly well host its own
+ * MasterChef*V2*. Keying off the address registry also means the gate stays correct by
+ * construction — adding a chef address is what makes a chain self-hosted, so the two can
+ * never drift apart.
+ *
+ * Chains WITHOUT an entry (ETHEREUM, ARBITRUM_ONE, GOERLI, MONAD_TESTNET, …) are upstream
+ * cross-farming chains: their farm LP tokens live on their own chain but the chef that
+ * tracks them lives on BSC, so they must keep resolving a BSC/BSC_TESTNET client. See
+ * `getMasterChefChainId`.
+ */
+export const isOwnMasterChefChain = (chainId?: number): boolean =>
+  Boolean(chainId && chainId in masterChefAddresses)
+
+/**
+ * Chain whose client should be used to read the classic MasterChef for `chainId`.
+ *
+ * Self-hosted chef chains read themselves; every other chain keeps upstream's original
+ * `isTestnet ? BSC_TESTNET : BSC` resolution byte-for-byte. Note BSC and BSC_TESTNET are
+ * themselves self-hosted, and for them the two branches produce the same value anyway.
+ */
+export const getMasterChefChainId = (chainId: number, isTestnet: boolean): number => {
+  if (isOwnMasterChefChain(chainId)) return chainId
+  return isTestnet ? ChainId.BSC_TESTNET : ChainId.BSC
+}
+
+/**
+ * Chains whose classic chef is the ORIGINAL MasterChef (v1) rather than MasterChefV2. The
+ * two ABIs are incompatible — see the comparison table in ./v2/fetchFarmsV2.ts.
+ *
+ * Lives here rather than next to that table so the farm-data path and the user-data path
+ * (apps/web/src/state/farms/fetchFarmUser.ts) can never disagree about which flavour a
+ * chain speaks. Orthogonal to `isOwnMasterChefChain`: that answers *where* the chef is,
+ * this answers *what it speaks*.
+ */
+export const CLASSIC_MASTERCHEF_V1_CHAIN_IDS: number[] = [ChainId.BASE_SEPOLIA]
+
+export const isClassicMasterChefV1Chain = (chainId?: number): boolean =>
+  Boolean(chainId && CLASSIC_MASTERCHEF_V1_CHAIN_IDS.includes(chainId))
+
 export const masterChefV3Addresses = {
   [ChainId.ETHEREUM]: '0x556B9306565093C855AEA9AE92A594704c2Cd59e',
   // [ChainId.GOERLI]: '0x864ED564875BdDD6F421e226494a0E7c071C06f8',

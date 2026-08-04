@@ -22,4 +22,7 @@ export const tradingRewardPairConfigChainMap: Record<FarmV3SupportedChainId, Com
   [ChainId.OPBNB_TESTNET]: [],
   [ChainId.OPBNB]: [],
   [ChainId.MONAD_TESTNET]: [],
+  // Required key since BASE_SEPOLIA joined supportedChainIdV3. Empty: trading-reward
+  // campaigns are a PancakeSwap-hosted programme with no chain-84532 edge cases.
+  [ChainId.BASE_SEPOLIA]: [],
 }

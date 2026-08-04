@@ -126,26 +126,27 @@ export async function farmV3FetchFarms({
       ? // No BSC/Chainlink dependency for this chain — derive HAWK/USD on-chain instead.
         fetchBaseSepoliaHawkUsdPrice(provider)
       : // NOTE: this Chainlink CAKE/USD feed only exists on BSC mainnet. Forks/deployments
-        // (e.g. testnet-only forks) that have no BSC client configured in `provider` would
-        // otherwise have this `readContract` call throw (provider({chainId: BSC}) returns
-        // undefined), aborting the whole farm fetch for every chain. Degrade gracefully to
-        // '0' instead so farms on other chains can still render (their APR will just be 0
-        // until this fork wires up its own price source).
-        Promise.resolve(provider({ chainId: ChainId.BSC }))
-          .then((client) =>
-            client
-              ? client.readContract({
-                  abi: chainlinkAbi,
-                  address: '0xB6064eD41d4f67e353768aA239cA86f4F73665a1',
-                  functionName: 'latestAnswer',
-                })
-              : undefined,
-          )
-          .then((res) => (res ? formatUnits(res, 8) : '0'))
-          .catch((error) => {
-            console.error('Failed to fetch CAKE/USD price from BSC Chainlink feed', error)
+        // (e.g. testnet-only forks) that configure no BSC client at all would otherwise have
+        // `provider({ chainId: BSC })` return undefined and this `readContract` throw,
+        // aborting the whole farm fetch for every chain. ONLY that missing-client case
+        // degrades to '0'. A deployment that does have a BSC client and gets a genuine RPC
+        // failure or a reverted call still rejects and propagates, exactly as upstream did —
+        // silently pricing CAKE at $0 there would corrupt every APR on the page.
+        (async () => {
+          const bscClient = provider({ chainId: ChainId.BSC })
+          if (!bscClient) {
+            console.error(
+              'No BSC client configured; CAKE/USD Chainlink price is unavailable. Degrading to 0 — APRs priced in CAKE will read 0.',
+            )
             return '0'
-          }),
+          }
+          const res = await bscClient.readContract({
+            abi: chainlinkAbi,
+            address: '0xB6064eD41d4f67e353768aA239cA86f4F73665a1',
+            functionName: 'latestAnswer',
+          })
+          return formatUnits(res, 8)
+        })(),
     fetchV3Pools(farms, chainId, provider),
   ])
 

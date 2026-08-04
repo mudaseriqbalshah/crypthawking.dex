@@ -73,10 +73,16 @@ export const legacyFarmConfig: SerializedFarmConfig[] = [
     quoteToken: baseSepoliaTokens.weth.serialize,
   },
   {
+    // token/quoteToken order in a V2 farm config is free — it only decides which side
+    // `getFarmsPrices` treats as the pricing anchor. tUSDC is the `stable` symbol in
+    // `evmNativeStableLpMap[BASE_SEPOLIA]`, so putting it in `quoteToken` lets
+    // getFarmQuoteTokenPrice short-circuit to the $1 peg and price tUSDT off
+    // tokenPriceVsQuote. With tUSDT as the quote token instead, neither side matched
+    // `stable` or `wNative` and this pair fell through to $0 with blank liquidity.
     pid: 3,
     lpSymbol: 'tUSDC-tUSDT HAWK-LP',
     lpAddress: '0x0972d080e24b67232A8A438D48C507fE6A9DB8b4',
-    token: baseSepoliaTokens.usdc.serialize,
-    quoteToken: baseSepoliaTokens.usdt.serialize,
+    token: baseSepoliaTokens.usdt.serialize,
+    quoteToken: baseSepoliaTokens.usdc.serialize,
   },
 ]
