@@ -1,12 +1,9 @@
-import { zeroAddress } from '@pancakeswap/price-api-sdk'
 import { Token } from '@pancakeswap/sdk'
 import { TokenLogo } from '@pancakeswap/uikit'
-import { chainName as CHAIN_PATH } from '@pancakeswap/widgets-internal'
 import { useMemo } from 'react'
 import { multiChainId, MultiChainNameExtend } from 'state/info/constant'
 import { styled } from 'styled-components'
-import { safeGetAddress } from 'utils'
-import { Address, isAddressEqual } from 'viem'
+import { Address } from 'viem'
 import getTokenLogoURL from '../../../../utils/getTokenLogoURL'
 
 const StyledLogo = styled(TokenLogo)<{ size: string }>`
@@ -14,12 +11,6 @@ const StyledLogo = styled(TokenLogo)<{ size: string }>`
   height: ${({ size }) => size};
   border-radius: ${({ size }) => size};
 `
-
-const chainNameToPath = (chainName: MultiChainNameExtend) => {
-  if (chainName === 'BSC') return ''
-  if (CHAIN_PATH[multiChainId[chainName]]) return `${CHAIN_PATH[multiChainId[chainName]]}/`
-  return `${chainName.toLowerCase()}/`
-}
 
 export const CurrencyLogo: React.FC<
   React.PropsWithChildren<{
@@ -33,15 +24,9 @@ export const CurrencyLogo: React.FC<
     return getTokenLogoURL(new Token(multiChainId[chainName], address as Address, 18, ''))
   }, [address, chainName])
 
-  const imagePath = chainNameToPath(chainName)
-  const checkedsummedAddress = safeGetAddress(address)
-
-  let srcFromPCS = checkedsummedAddress
-    ? `https://tokens.pancakeswap.finance/images/${imagePath}${checkedsummedAddress}.png`
-    : ''
-  if (checkedsummedAddress && isAddressEqual(checkedsummedAddress, zeroAddress)) {
-    srcFromPCS = `https://assets.pancakeswap.finance/web/native/${multiChainId[chainName]}.png`
-  }
+  // CryptoHawking: upstream PancakeSwap asset/token CDNs are never contacted
+  // (spec §6.9). Logos resolve from our own token list via `src`.
+  const srcFromPCS = ''
 
   return <StyledLogo size={size} srcs={src ? [srcFromPCS, src] : [srcFromPCS]} alt="token logo" {...rest} />
 }

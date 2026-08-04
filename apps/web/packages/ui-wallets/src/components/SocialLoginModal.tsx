@@ -16,7 +16,8 @@ import {
 import { MouseEvent } from 'react'
 import styled from 'styled-components'
 
-const ASSET_CDN = 'https://assets.pancakeswap.finance'
+// CryptoHawking: no upstream PancakeSwap CDN — relative paths only.
+const ASSET_CDN = process.env.NEXT_PUBLIC_ASSET_CDN || ''
 
 interface SocialLoginModalProps {
   isOpen: boolean

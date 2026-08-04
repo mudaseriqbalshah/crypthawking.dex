@@ -12,13 +12,10 @@ export function PrivyProvider({ children }: PropsWithChildren) {
   const { isLoading, getToken } = useFirebaseAuth()
   const router = useRouter()
 
-  // Validate required environment variables
-  const appId = process.env.NEXT_PUBLIC_PRIVY_APP_ID
-  const clientId = process.env.NEXT_PUBLIC_PRIVY_CLIENT_ID
-
-  if (!appId || !clientId) {
-    console.error('Missing required Privy environment variables')
-  }
+  // CryptoHawking: Privy social login is intentionally unconfigured — we do not run a
+  // Privy app and must not reuse PancakeSwap's. The provider still mounts (downstream
+  // components call usePrivy unconditionally) but stays unauthenticated. Upstream
+  // console.error'd here; that is expected state for us, not a fault.
 
   // Show wallet UIs only on bridge pages
   const showWalletUIs = router.pathname.includes('/bridge')
