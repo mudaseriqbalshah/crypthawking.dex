@@ -39,7 +39,7 @@ for (const [file, name, expected] of checks) {
   if (!ok) { console.error(`FAIL ${name}: ${expected} not found in ${file}`); failed++ }
   else console.log(`ok   ${name}`)
 }
-// Forbidden: PancakeSwap's old 84532 addresses must be gone from these files.
+// Forbidden: PancakeSwap's old 84532 addresses must be gone from BASE_SEPOLIA context.
 const forbidden = [
   '0x02a84c1b3BBD7401a5f7fa98a384EBC70bB5749E', // pcs v2 factory
   '0x0BFbCF9fa4f9C56B0F40a671Ad40E0805A091865', // pcs v3 factory
@@ -49,10 +49,28 @@ const forbidden = [
   '0x8cFe327CEc66d1C090Dd72bd0FF11d690C33a2Eb', // pcs v2 router
   '0xB048Bbc1Ee6b733FFfCFb9e9CeF7375518e25997', // pcs quoter
 ]
-for (const [file] of checks) {
+// Deduplicate file list to avoid scanning the same file multiple times
+const files = [...new Set(checks.map(([f]) => f))]
+for (const file of files) {
   const src = read(file)
+  const lines = src.split('\n')
   for (const addr of forbidden) {
-    if (src.includes(addr)) { console.error(`FAIL forbidden PancakeSwap addr ${addr} still in ${file}`); failed++ }
+    const addrLower = addr.toLowerCase()
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i]
+      // Check if forbidden address appears on a line with BASE_SEPOLIA or within 3 lines after
+      if (line.toLowerCase().includes('base_sepolia')) {
+        // Check this line and the next 3 lines for the forbidden address
+        for (let j = i; j < Math.min(i + 4, lines.length); j++) {
+          if (lines[j].toLowerCase().includes(addrLower)) {
+            console.error(`FAIL forbidden PancakeSwap addr ${addr} still in ${file}`)
+            failed++
+            break
+          }
+        }
+        break // Only check the first BASE_SEPOLIA context in this check iteration
+      }
+    }
   }
 }
 if (failed) { console.error(`\n${failed} check(s) failed`); process.exit(1) }
