@@ -2,6 +2,19 @@
 
 Running log of anything guessed, stubbed, or blocked. Newest first.
 
+- **2026-08-04 — frontend SDK: no SmartRouter, no MixedRouteQuoter, no FOT detector on
+  Base Sepolia (Task 4).** `SMART_ROUTER_ADDRESSES[BASE_SEPOLIA]`,
+  `MIXED_ROUTE_QUOTER_ADDRESSES[BASE_SEPOLIA]` (in both
+  `packages/smart-router/evm/constants/v3.ts` and
+  `packages/routing-sdk/addons/quoter/src/constants/mixedRouteQuoterV1.ts`), and
+  `feeOnTransferDetectorAddresses[BASE_SEPOLIA]` all point at `''`/zero-address stubs —
+  none of these contracts are deployed. Consequences: swaps route exclusively through the
+  UniversalRouter (matches the 2026-08-03 Infinity resolution above); the mixed v2+v3
+  single-quote path is unsupported (routing-sdk/smart-router fall back to separate v2/v3
+  quotes); fee-on-transfer detection is skipped (fine — all our test tokens are plain
+  ERC-20s, not FOT). Revisit only if a future task needs on-chain FOT detection or a
+  deployed SmartRouter.
+
 - **2026-08-04 — brand extraction gaps (frontend phase).**
   `vibe.cryptohawking.com` does not resolve in DNS — no tokens could be extracted
   from Vibe Hawking; re-extract when it goes live. Parent-site OG image URL 404s
