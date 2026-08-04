@@ -91,6 +91,7 @@ export const SERVER_NODES = {
   [ChainId.BASE_SEPOLIA]: [
     process.env.NEXT_PUBLIC_BASE_SEPOLIA_RPC,
     'https://sepolia.base.org',
+    'https://base-sepolia-rpc.publicnode.com',
     ...baseSepolia.rpcUrls.default.http,
   ].filter((n): n is string => Boolean(n)),
   [ChainId.MONAD_TESTNET]: [
@@ -180,6 +181,7 @@ export const PUBLIC_NODES: Record<ChainId, string[] | readonly string[]> = {
   [ChainId.BASE_SEPOLIA]: [
     process.env.NEXT_PUBLIC_BASE_SEPOLIA_RPC,
     'https://sepolia.base.org',
+    'https://base-sepolia-rpc.publicnode.com',
     ...baseSepolia.rpcUrls.default.http,
   ].filter((n): n is string => Boolean(n)),
   [ChainId.MONAD_TESTNET]: [

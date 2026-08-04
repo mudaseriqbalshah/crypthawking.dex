@@ -59,7 +59,7 @@ export const FarmV3Card: React.FC<React.PropsWithChildren<FarmCardProps>> = ({ f
   const farmCakePerSecond = getFarmCakePerSecond(farm.poolWeight)
 
   const lpLabel = farm.lpSymbol && farm.lpSymbol.replace(/pancake/gi, '')
-  const earnLabel = t('CAKE + Fees')
+  const earnLabel = t('HAWK + Fees')
   const { lpAddress } = farm
   const isPromotedFarm = farm.token.symbol === 'HAWK'
   const merklUserLink = useMerklUserLink()
