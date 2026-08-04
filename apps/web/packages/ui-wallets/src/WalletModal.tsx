@@ -38,7 +38,8 @@ import { errorAtom, lastUsedWalletNameAtom, previouslyUsedWalletsAtom, selectedW
 import SocialLoginButton from './components/SocialLoginButton'
 import { ConnectData, LinkOfDevice, WalletConfigV2, WalletModalV2Props } from './types'
 
-export const ASSET_CDN = 'https://assets.pancakeswap.finance'
+// CryptoHawking: no upstream PancakeSwap CDN — relative paths only.
+export const ASSET_CDN = process.env.NEXT_PUBLIC_ASSET_CDN || ''
 
 const StepIntro = lazy(() => import('./components/Intro'))
 

@@ -27,12 +27,15 @@ export const getImageUrlFromToken = (token: Currency) => {
     address = WBNB[ChainId.BSC].wrapped.address
   }
 
-  return token
-    ? token.isNative && token.chainId !== ChainId.BSC
-      ? `${ASSET_CDN}/web/native/${token.chainId}.png`
-      : `https://tokens.pancakeswap.finance/images/${tokenImageChainNameMapping[token.chainId]}${safeGetAddress(
-          address,
-        )}.png`
+  // CryptoHawking: upstream fell back to tokens.pancakeswap.finance for any token
+  // without a list logo. We contact no PancakeSwap host (spec §6.9) and run no token
+  // image CDN, so this yields a URL only when one is configured. Callers already
+  // prepend the token list's own logoURI (see getImageUrlsFromToken). See RISKS.md.
+  const TOKEN_IMAGE_CDN = process.env.NEXT_PUBLIC_TOKEN_IMAGE_CDN || ''
+  if (!token) return ''
+  if (token.isNative && token.chainId !== ChainId.BSC) return `${ASSET_CDN}/web/native/${token.chainId}.png`
+  return TOKEN_IMAGE_CDN
+    ? `${TOKEN_IMAGE_CDN}/images/${tokenImageChainNameMapping[token.chainId]}${safeGetAddress(address)}.png`
     : ''
 }
 

@@ -6,7 +6,11 @@ import { ADDITIONAL_BASES, ADDITIONAL_BASES_TABLE } from '../../constants'
 
 const fetchConfig = memoize(
   async () => {
-    const url = `https://proofs.pancakeswap.com/cms-config/routing-base-config.json`
+    // CryptoHawking: no CMS. Upstream fetched this from proofs.pancakeswap.com;
+    // with NEXT_PUBLIC_PROOF_API unset we fall straight back to the static table.
+    const proofApi = process.env.NEXT_PUBLIC_PROOF_API
+    if (!proofApi) return ADDITIONAL_BASES
+    const url = `${proofApi}/cms-config/routing-base-config.json`
     try {
       const response = await fetch(url)
       const data: {

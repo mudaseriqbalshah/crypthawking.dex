@@ -52,13 +52,19 @@ export const chainName: { [key: number]: string } = {
   [ChainId.MONAD_TESTNET]: "monad-testnet",
 };
 
+// CryptoHawking: upstream pointed these at tokens.pancakeswap.finance. We operate no
+// token-image CDN, and spec §6.9 forbids requests to *.pancakeswap.* hosts, so the
+// base URL is configuration-driven and yields no URL when unset — callers already
+// fall back to the token list's own logoURI. See RISKS.md.
+const TOKEN_IMAGE_CDN = process.env.NEXT_PUBLIC_TOKEN_IMAGE_CDN || "";
+
 // TODO: move to utils or token-list
 export const getTokenListBaseURL = (chainId: number) =>
-  `https://tokens.pancakeswap.finance/images/${chainName[chainId]}`;
+  TOKEN_IMAGE_CDN ? `${TOKEN_IMAGE_CDN}/images/${chainName[chainId]}` : "";
 
 export const getTokenListTokenUrl = (token: Pick<Token, "chainId" | "address">) =>
-  Object.keys(chainName).includes(String(token.chainId))
-    ? `https://tokens.pancakeswap.finance/images/${
+  TOKEN_IMAGE_CDN && Object.keys(chainName).includes(String(token.chainId))
+    ? `${TOKEN_IMAGE_CDN}/images/${
         token.chainId === ChainId.BSC ? "" : `${chainName[token.chainId]}/`
       }${token.address}.png`
     : null;
@@ -83,7 +89,9 @@ export const getCommonCurrencyUrl = memoize(
 export const getCommonCurrencyUrlBySymbol = memoize(
   (symbol?: string): string | undefined =>
     symbol && commonCurrencySymbols.includes(symbol)
-      ? `https://tokens.pancakeswap.finance/images/symbol/${symbol.toLocaleLowerCase()}.png`
+      ? TOKEN_IMAGE_CDN
+        ? `${TOKEN_IMAGE_CDN}/images/symbol/${symbol.toLocaleLowerCase()}.png`
+        : undefined
       : undefined,
   (symbol?: string) => `logoUrls#symbol#${symbol}`
 );

@@ -144,6 +144,11 @@ export const getMerklApr = async (result: any, chainId: number) => {
 }
 
 export const getAllNetworkMerklApr = async (signal?: AbortSignal) => {
+  // CryptoHawking: no Merkl campaigns exist for our Base Sepolia deployment, and the
+  // upstream query is scoped to `mainProtocolId=pancake-swap`. Skip the request entirely.
+  if (!process.env.NEXT_PUBLIC_MERKL_API) {
+    return {} as MerklApr
+  }
   const resp = await fetch(
     `https://api.merkl.xyz/v4/opportunities/?chainId=${supportedChainIdV4.join(
       ',',

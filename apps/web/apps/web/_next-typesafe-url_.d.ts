@@ -23,6 +23,7 @@ declare module "@@@next-typesafe-url" {
     "/add/[[...currency]]": StaticRoute;
     "/farms/history": StaticRoute;
     "/farms": StaticRoute;
+    "/faucet": StaticRoute;
     "/find": StaticRoute;
     "/home": StaticRoute;
     "/increase/[[...currency]]": StaticRoute;

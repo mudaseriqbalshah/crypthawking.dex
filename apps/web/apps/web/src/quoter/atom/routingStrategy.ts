@@ -78,6 +78,11 @@ interface TokenSpecificRoutingStrategy {
 }
 
 export const getTokenRoutingConfig = async () => {
+  // CryptoHawking: no CMS behind NEXT_PUBLIC_PROOF_API — skip the fetch when unset
+  // rather than requesting `undefined/cms-config/...` (which resolved to a Pancake host).
+  if (!process.env.NEXT_PUBLIC_PROOF_API) {
+    return {}
+  }
   try {
     const response = await fetch(`${process.env.NEXT_PUBLIC_PROOF_API}/cms-config/tokens-routing-config.json`)
     if (!response.ok) {
