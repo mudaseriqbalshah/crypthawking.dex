@@ -86,14 +86,6 @@ const config = {
     return {
       afterFiles: [
         {
-          source: '/info/token/:address',
-          destination: '/info/tokens/:address',
-        },
-        {
-          source: '/info/pool/:address',
-          destination: '/info/pools/:address',
-        },
-        {
           source: '/.well-known/vercel/flags',
           destination: '/api/vercel/flags',
         },
@@ -181,21 +173,6 @@ const config = {
         destination: '/pools',
         permanent: true,
       },
-      {
-        source: '/collectibles',
-        destination: '/nfts',
-        permanent: true,
-      },
-      {
-        source: '/info/pools',
-        destination: '/info/pairs',
-        permanent: true,
-      },
-      {
-        source: '/info/pools/:address',
-        destination: '/info/pairs/:address',
-        permanent: true,
-      }
     ]
   },
   webpack: (webpackConfig, { webpack, isServer }) => {
