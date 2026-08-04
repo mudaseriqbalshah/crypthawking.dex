@@ -2,6 +2,7 @@ import { ChainId } from '@pancakeswap/chains'
 import { ERC20Token } from '@pancakeswap/sdk'
 import {
   arbitrumTokens,
+  baseSepoliaTokens,
   baseTokens,
   bscTestnetTokens,
   bscTokens,
@@ -86,4 +87,12 @@ export const DEFAULT_COMMON_PRICE: Record<FarmV3SupportedChainId, CommonPrice> =
   [ChainId.OPBNB_TESTNET]: {},
   [ChainId.OPBNB]: {},
   [ChainId.MONAD_TESTNET]: {},
+  // No price API/subgraph exists for this fork's valueless testnet stablecoins. Peg them
+  // to $1 by design (same pattern as BSC_TESTNET above) so `getFarmsPrices`
+  // (packages/farms/src/fetchFarmsV3.ts) can cascade real on-chain tokenPriceVsQuote
+  // ratios (from V3 pool ticks) into WETH/HAWK USD prices without any external service.
+  [ChainId.BASE_SEPOLIA]: {
+    [baseSepoliaTokens.usdc.address]: '1',
+    [baseSepoliaTokens.usdt.address]: '1',
+  },
 }

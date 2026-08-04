@@ -23,6 +23,88 @@ const chainlinkAbi = [
   },
 ] as const
 
+const v2PairAbi = [
+  { inputs: [], name: 'token0', outputs: [{ type: 'address' }], stateMutability: 'view', type: 'function' },
+  {
+    inputs: [],
+    name: 'getReserves',
+    outputs: [
+      { internalType: 'uint112', name: 'reserve0', type: 'uint112' },
+      { internalType: 'uint112', name: 'reserve1', type: 'uint112' },
+      { internalType: 'uint32', name: 'blockTimestampLast', type: 'uint32' },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+] as const
+
+// Base Sepolia has no BSC/Chainlink CAKE-USD feed to reuse (and never will — this fork
+// references zero PancakeSwap mainnet addresses per the engineering rules), and HAWK is a
+// valueless test token with no external price API entry either. Derive HAWK's USD price
+// entirely from our own deployed V2 pools instead:
+//   1. HAWK/WETH pair reserves -> WETH price denominated in HAWK
+//   2. WETH/tUSDC pair reserves, with tUSDC pegged $1 (see DEFAULT_COMMON_PRICE) -> WETH price in USD
+//   3. hawkUsd = (WETH per HAWK) * (USD per WETH)
+// Reserve/token ordering is read live via token0()/getReserves() each call, not assumed.
+// Verified against a viem probe against these two pairs on 2026-08-04 (see task-8-report.md):
+// HAWK/WETH reserves ~380 HAWK : 0.05 WETH, WETH/tUSDC reserves ~0.05 WETH : 190 tUSDC
+// => hawkUsd ~= 0.5.
+const BASE_SEPOLIA_HAWK_WETH_PAIR = '0xd4eAAe265c051f338cB01F99116647A19F31e4C3' as Address
+const BASE_SEPOLIA_WETH_TUSDC_PAIR = '0x832E6D2DdA6D6d47459c0b09A37e2b334aBb2f8e' as Address
+const BASE_SEPOLIA_HAWK_ADDRESS = '0x2843bABb7557CD51e8007F8D2a960457c734C570'
+const BASE_SEPOLIA_WETH_ADDRESS = '0x4200000000000000000000000000000000000006'
+const BASE_SEPOLIA_HAWK_DECIMALS = 18
+const BASE_SEPOLIA_WETH_DECIMALS = 18
+const BASE_SEPOLIA_TUSDC_DECIMALS = 6
+
+export async function fetchBaseSepoliaHawkUsdPrice(
+  provider: ({ chainId }: { chainId: number }) => PublicClient,
+): Promise<string> {
+  try {
+    const client = provider({ chainId: ChainId.BASE_SEPOLIA })
+    if (!client) return '0'
+
+    const readPair = async (pairAddress: Address) => {
+      const [token0, reserves] = await Promise.all([
+        client.readContract({ address: pairAddress, abi: v2PairAbi, functionName: 'token0' }),
+        client.readContract({ address: pairAddress, abi: v2PairAbi, functionName: 'getReserves' }),
+      ])
+      return { token0, reserve0: reserves[0], reserve1: reserves[1] }
+    }
+
+    const [hawkWeth, wethTusdc] = await Promise.all([
+      readPair(BASE_SEPOLIA_HAWK_WETH_PAIR),
+      readPair(BASE_SEPOLIA_WETH_TUSDC_PAIR),
+    ])
+
+    const hawkIsToken0 = hawkWeth.token0.toLowerCase() === BASE_SEPOLIA_HAWK_ADDRESS.toLowerCase()
+    const hawkReserve = new BN(
+      formatUnits(hawkIsToken0 ? hawkWeth.reserve0 : hawkWeth.reserve1, BASE_SEPOLIA_HAWK_DECIMALS),
+    )
+    const wethReserveInHawkPair = new BN(
+      formatUnits(hawkIsToken0 ? hawkWeth.reserve1 : hawkWeth.reserve0, BASE_SEPOLIA_WETH_DECIMALS),
+    )
+    if (hawkReserve.isZero() || wethReserveInHawkPair.isZero()) return '0'
+    const wethPerHawk = wethReserveInHawkPair.div(hawkReserve)
+
+    const wethIsToken0InStablePair = wethTusdc.token0.toLowerCase() === BASE_SEPOLIA_WETH_ADDRESS.toLowerCase()
+    const wethReserveInStablePair = new BN(
+      formatUnits(wethIsToken0InStablePair ? wethTusdc.reserve0 : wethTusdc.reserve1, BASE_SEPOLIA_WETH_DECIMALS),
+    )
+    const tusdcReserve = new BN(
+      formatUnits(wethIsToken0InStablePair ? wethTusdc.reserve1 : wethTusdc.reserve0, BASE_SEPOLIA_TUSDC_DECIMALS),
+    )
+    if (wethReserveInStablePair.isZero() || tusdcReserve.isZero()) return '0'
+    // tUSDC pegged $1, so this ratio is WETH's USD price.
+    const usdPerWeth = tusdcReserve.div(wethReserveInStablePair)
+
+    return wethPerHawk.times(usdPerWeth).toString()
+  } catch (error) {
+    console.error('Failed to derive HAWK/USD price from Base Sepolia V2 pools', error)
+    return '0'
+  }
+}
+
 export async function farmV3FetchFarms({
   farms,
   provider,
@@ -40,27 +122,30 @@ export async function farmV3FetchFarms({
 }) {
   const [poolInfos, cakePrice, v3PoolData] = await Promise.all([
     fetchPoolInfos(farms, chainId, provider, masterChefAddress),
-    // NOTE: this Chainlink CAKE/USD feed only exists on BSC mainnet. Forks/deployments
-    // (e.g. testnet-only forks) that have no BSC client configured in `provider` would
-    // otherwise have this `readContract` call throw (provider({chainId: BSC}) returns
-    // undefined), aborting the whole farm fetch for every chain. Degrade gracefully to
-    // '0' instead so farms on other chains can still render (their APR will just be 0
-    // until this fork wires up its own price source).
-    Promise.resolve(provider({ chainId: ChainId.BSC }))
-      .then((client) =>
-        client
-          ? client.readContract({
-              abi: chainlinkAbi,
-              address: '0xB6064eD41d4f67e353768aA239cA86f4F73665a1',
-              functionName: 'latestAnswer',
-            })
-          : undefined,
-      )
-      .then((res) => (res ? formatUnits(res, 8) : '0'))
-      .catch((error) => {
-        console.error('Failed to fetch CAKE/USD price from BSC Chainlink feed', error)
-        return '0'
-      }),
+    chainId === ChainId.BASE_SEPOLIA
+      ? // No BSC/Chainlink dependency for this chain — derive HAWK/USD on-chain instead.
+        fetchBaseSepoliaHawkUsdPrice(provider)
+      : // NOTE: this Chainlink CAKE/USD feed only exists on BSC mainnet. Forks/deployments
+        // (e.g. testnet-only forks) that have no BSC client configured in `provider` would
+        // otherwise have this `readContract` call throw (provider({chainId: BSC}) returns
+        // undefined), aborting the whole farm fetch for every chain. Degrade gracefully to
+        // '0' instead so farms on other chains can still render (their APR will just be 0
+        // until this fork wires up its own price source).
+        Promise.resolve(provider({ chainId: ChainId.BSC }))
+          .then((client) =>
+            client
+              ? client.readContract({
+                  abi: chainlinkAbi,
+                  address: '0xB6064eD41d4f67e353768aA239cA86f4F73665a1',
+                  functionName: 'latestAnswer',
+                })
+              : undefined,
+          )
+          .then((res) => (res ? formatUnits(res, 8) : '0'))
+          .catch((error) => {
+            console.error('Failed to fetch CAKE/USD price from BSC Chainlink feed', error)
+            return '0'
+          }),
     fetchV3Pools(farms, chainId, provider),
   ])
 

@@ -18,6 +18,7 @@ import {
   CommonPrice,
   LPTvl,
   farmV3FetchFarms,
+  fetchBaseSepoliaHawkUsdPrice,
   fetchCommonTokenUSDValue,
   fetchMasterChefV3Data,
   fetchTokenUSDValues,
@@ -44,9 +45,17 @@ export function createFarmFetcher(provider: ({ chainId }: { chainId: FarmV2Suppo
     } & Pick<FetchFarmsParams, 'chainId' | 'farms'>,
   ) => {
     const { isTestnet, farms, chainId } = params
-    const masterChefAddress = isTestnet ? masterChefAddresses[ChainId.BSC_TESTNET] : masterChefAddresses[ChainId.BSC]
+    // Chain-aware chef address lookup: masterChefAddresses[chainId] first (works for any
+    // chain we've deployed a MasterChef to, incl. Base Sepolia). Falls back to the old
+    // isTestnet ? BSC_TESTNET : BSC guess only for chains with no entry in
+    // masterChefAddresses (preserves prior behavior for those instead of resolving to
+    // `undefined`). For chainId === BSC or BSC_TESTNET this resolves to the exact same
+    // address as before either way.
+    const masterChefAddress =
+      masterChefAddresses[chainId as keyof typeof masterChefAddresses] ??
+      (isTestnet ? masterChefAddresses[ChainId.BSC_TESTNET] : masterChefAddresses[ChainId.BSC])
     const { poolLength, totalRegularAllocPoint, totalSpecialAllocPoint, cakePerBlock } = await fetchMasterChefV2Data({
-      isTestnet,
+      chainId,
       provider,
       masterChefAddress,
     })
@@ -167,4 +176,4 @@ export type { FarmWithPrices } from './v2/farmPrices'
 export * from './v2/farmsPriceHelpers'
 export * from './v2/filterFarmsByQuery'
 
-export { fetchCommonTokenUSDValue, fetchTokenUSDValues, masterChefV3Addresses }
+export { fetchBaseSepoliaHawkUsdPrice, fetchCommonTokenUSDValue, fetchTokenUSDValues, masterChefV3Addresses }

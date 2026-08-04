@@ -2,8 +2,68 @@
 
 Running log of anything guessed, stubbed, or blocked. Newest first.
 
+- **2026-08-04 — frontend farms (Task 8 fix round): RESOLVED — V2 farms now render with
+  live on-chain data, and HAWK/USD is derived on-chain with zero BSC/Chainlink
+  dependency.** Supersedes the two Task 8 entries below (kept for history).
+  What the fix round changed:
+  1. *Chain-aware V2 fetch.* `createFarmFetcher.fetchFarms` (`packages/farms/src/index.ts`)
+     now resolves the chef via `masterChefAddresses[chainId]` (falling back to the old
+     `isTestnet ? BSC_TESTNET : BSC` guess only for chains with no entry), and
+     `fetchMasterChefV2Data`/`fetchMasterChefData` (`packages/farms/src/v2/fetchFarmsV2.ts`)
+     take a real `chainId` instead of deriving one from `isTestnet`. `ChainId.BASE_SEPOLIA`
+     is now in `supportedChainIdV2`. BSC/BSC_TESTNET resolve to the identical addresses and
+     chain ids they did before.
+  2. *Legacy config gate.* `getLegacyFarmConfig` gated the whole legacy V2 config on
+     `supportedChainIdV4` — a list that also drives the Merkl APR API, the explorer pool
+     queries and the farmsV4/Infinity fetchers, none of which know chain 84532. It now
+     allows BASE_SEPOLIA explicitly; every other chain keeps its previous gate exactly.
+  3. *Our chef is MasterChef **v1**, not MasterChefV2.* `contracts/farms/contracts/MasterChef.sol`
+     (deployed at `0x30cCe7f0eE4314Ca353cC16ecaAcb2E2aE4E6963`) exposes `totalAllocPoint()`,
+     `cakePerBlock()` and a 4-field `poolInfo` — the frontend spoke MasterChefV2's
+     `totalRegularAllocPoint()`/`totalSpecialAllocPoint()`/`cakePerBlock(bool)` and 5-field
+     `poolInfo`, so every call reverted (verified on-chain). `fetchFarmsV2.ts` now carries a
+     `CLASSIC_MASTERCHEF_V1_CHAIN_IDS` list (BASE_SEPOLIA only) and a v1 ABI branch in both
+     fetchers; chains off that list are untouched.
+  4. *No PancakeSwap price API.* `farmV2FetchFarms` fell back to `getCurrencyListUsdPrice`
+     (PancakeSwap-hosted, no chain-84532 coverage) for any token it couldn't price, and that
+     call *throws* rather than resolving empty — one unpriced test token rejected the whole
+     V2 fetch and left every row in its loading skeleton. Skipped for v1-chef chains; prices
+     come from `getFarmsPrices`' on-chain reserve cascade off the tUSDC/WETH anchor in
+     `evmNativeStableLpMap` instead.
+  5. *HAWK/USD price.* `fetchBaseSepoliaHawkUsdPrice` (`packages/farms/src/fetchFarmsV3.ts`)
+     derives it live from our own V2 pairs — HAWK/WETH reserves priced through tUSDC/WETH
+     with tUSDC pegged $1 — reading `token0()`/`getReserves()` each call rather than
+     assuming ordering. `useCakePrice` / `getCakePriceFromOracle` now use it for 84532
+     instead of reading the BSC mainnet Chainlink CAKE feed. Verified: on-chain reserves
+     380 HAWK : 0.05 WETH and 0.05 WETH : 190 tUSDC (6dp) => $3800/WETH => **HAWK = $0.50**,
+     which is what the UI displays.
+  6. *Non-boosted V2 APR.* `FarmTable.tsx` forced APR to 0 whenever
+     `!farm.bCakePublicData?.isRewardInRange`, which is `!undefined` === true for any farm
+     without a bCake wrapper (we deployed none). Now only applied when the farm actually has
+     a `bCakeWrapperAddress`; unchanged for every boosted upstream farm.
+  **Remaining degradations (all cosmetic/data-completeness, none crash or block):**
+  - pid 0 (HAWK single-staking) is filtered off `/farms` by upstream's `farm.pid !== 0`
+    rule — that pool belongs on `/pools`. Its config exists and is fetched correctly.
+  - The tUSDC-WETH and tUSDC-tUSDT V2 farms show blank liquidity / 0% APR because they
+    genuinely have 0 LP staked in the chef right now — an on-chain fact, not a wiring bug.
+    HAWK-WETH (the one with LP staked) shows $190 staked liquidity and a live APR.
+  - tUSDT resolves to price '0' in the V2 path: the tUSDC/tUSDT pair has no WETH leg for
+    `getFarmsPrices` to cascade from, and the external price-API fallback is deliberately
+    off for this chain.
+  - V2 CAKE APR uses upstream's `BLOCKS_PER_YEAR`, which assumes BSC's 3s blocks; Base
+    Sepolia blocks are 2s, so the figure is proportionally off. Cosmetic on a testnet with
+    valueless tokens, but it should be made chain-aware before any APR is taken seriously.
+  - "Reward Per Day" reads `0.00 CAKE` — that column is fed by bCake wrapper data and we
+    deployed no bCake wrappers.
+  - V3 TVL is a best-effort `balanceOf(pool)` on-chain proxy (whole-pool liquidity, not the
+    staked-only portion) because the hosted `/v3/{chainId}/liquidity` aggregator 504s for
+    chain 84532. V3 TVL/APR therefore read lower than the true staker-only figure.
+  - Reward-token strings still say "CAKE" in several farm UI labels; that is branding work,
+    not farm wiring.
+
 - **2026-08-04 — frontend farms (Task 8): V2 classic-MasterChef farms (pid 0-3, incl.
   HAWK single-staking) do not render on `/farms` for Base Sepolia; only the 3 V3 farms do.**
+  *(SUPERSEDED by the fix-round entry above — both root causes are now fixed.)*
   Root cause is NOT `bCakeWrapperAddress` (confirmed optional/safe everywhere it's read —
   `packages/farms/src/getLegacyFarmConfig.ts:35,50`, `packages/farms/src/v2/fetchFarmsV2.ts:65`).
   It's two separate, pre-existing architectural issues in this fork's V2 legacy-farm

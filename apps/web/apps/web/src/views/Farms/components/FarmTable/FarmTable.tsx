@@ -166,15 +166,19 @@ const FarmTable: React.FC<React.PropsWithChildren<ITableProps>> = ({ farms, cake
 
       if (farm.version === 2) {
         const isBooster = Boolean(farm?.bCakeWrapperAddress)
+        // Only a farm that actually HAS a bCake wrapper can have its APR zeroed by that
+        // wrapper's reward state. Previously the `!farm?.bCakePublicData?.isRewardInRange`
+        // half of this test was unguarded, so a plain (non-boosted) V2 farm — which has no
+        // `bCakeWrapperAddress` and therefore never gets `bCakePublicData` populated — read
+        // `!undefined` === true and had its APR forced to 0 no matter what the farm actually
+        // earned. Every upstream V2 farm ships a wrapper, so this only ever bit deployments
+        // (like CryptoHawking's Base Sepolia MasterChef farms) that run without one; for any
+        // farm where `isBooster` is true the expression is unchanged.
+        const isAprZeroedByBooster =
+          isBooster && (farm?.bCakePublicData?.rewardPerSecond === 0 || !farm?.bCakePublicData?.isRewardInRange)
         const row: RowProps = {
           apr: {
-            value:
-              getDisplayApr(
-                (isBooster && farm?.bCakePublicData?.rewardPerSecond === 0) || !farm?.bCakePublicData?.isRewardInRange
-                  ? 0
-                  : farm.apr,
-                farm.lpRewardsApr,
-              ) ?? '',
+            value: getDisplayApr(isAprZeroedByBooster ? 0 : farm.apr, farm.lpRewardsApr) ?? '',
             pid: farm.pid,
             multiplier: farm.multiplier ?? '',
             lpLabel,
@@ -184,10 +188,7 @@ const FarmTable: React.FC<React.PropsWithChildren<ITableProps>> = ({ farms, cake
             quoteTokenAddress,
             cakePrice,
             lpRewardsApr: farm.lpRewardsApr ?? 0,
-            originalValue:
-              (isBooster && farm?.bCakePublicData?.rewardPerSecond === 0) || !farm?.bCakePublicData?.isRewardInRange
-                ? 0
-                : farm.apr ?? 0,
+            originalValue: isAprZeroedByBooster ? 0 : farm.apr ?? 0,
             stableSwapAddress: farm.stableSwapAddress,
             stableLpFee: farm.stableLpFee,
           },

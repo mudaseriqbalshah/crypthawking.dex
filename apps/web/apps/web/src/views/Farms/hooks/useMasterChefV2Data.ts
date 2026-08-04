@@ -9,7 +9,7 @@ const fetcher = (chainId?: number) => {
   const masterChefAddress = masterChefAddresses[chainId]
 
   return fetchMasterChefV2Data({
-    isTestnet: false,
+    chainId,
     provider: publicClient,
     masterChefAddress,
   })
