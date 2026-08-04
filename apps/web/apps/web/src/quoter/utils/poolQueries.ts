@@ -15,6 +15,23 @@ import { edgePoolQueryClient } from './edgePoolQueryClient'
 import { Protocol as EdgeProtocol } from './edgeQueries.util'
 import { PoolHashHelper } from './PoolHashHelper'
 
+/**
+ * CryptoHawking: Base Sepolia has no pool-indexing backend behind it. The upstream
+ * candidate-pool API (`NEXT_PUBLIC_EXPLORE_API_ENDPOINT`) is a PancakeSwap host and is
+ * intentionally blank in this fork, so `/api/pools/candidates` answers 200 with an empty
+ * list — a *successful* response, which means the remote-first path never falls back and
+ * the router is handed zero pools. For this chain we resolve candidate pools straight from
+ * chain state (factory + on-chain multicall), which is also self-healing as new pools are
+ * deployed. Scoped to 84532; every other chain keeps the remote-first path byte-identical.
+ */
+const isOnChainOnlyChain = (chainId: ChainId) => chainId === ChainId.BASE_SEPOLIA
+
+/**
+ * On-chain candidate resolution needs a full multicall round-trip against a public testnet
+ * RPC, which regularly exceeds the 3s budget tuned for the remote pool API.
+ */
+const ON_CHAIN_ONLY_REQUEST_TIMEOUT = 20_000
+
 export const poolQueriesFactory = memoize((chainId: ChainId) => {
   const POOL_TTL = POOLS_FAST_REVALIDATE[chainId] || 10_000
   function getCacheKey(args: [PoolQuery, PoolQueryOptions] | [PoolQuery]) {
@@ -31,7 +48,7 @@ export const poolQueriesFactory = memoize((chainId: ChainId) => {
     key: getCacheKey,
     isValid,
     maxAge: 30_000,
-    requestTimeout: 3_000,
+    requestTimeout: isOnChainOnlyChain(chainId) ? ON_CHAIN_ONLY_REQUEST_TIMEOUT : 3_000,
   }
 
   const getV2CandidatePools = cacheByLRU(async (query: PoolQuery, options: PoolQueryOptions) => {
@@ -250,6 +267,22 @@ export const fetchCandidatePoolsLite = async (query: PoolQuery, options: PoolQue
   const defaultQuery = async () => {
     const protocols = protocolsFromQuery(options)
     return edgePoolQueryClient.getAllCandidates(currencyA, currencyB, chainId, blockNumber, protocols, 'light')
+  }
+
+  if (isOnChainOnlyChain(chainId)) {
+    // Same on-chain sources as `fetchCandidatePools`. The *Light* infinity/v3 variants are
+    // deliberately not used here: they lean on `/api/pools/tvlref`, which is backed by the
+    // same absent explorer API and rejects for this chain, taking the whole `Promise.all`
+    // with it. Fully on-chain pools already carry their own ticks/bins.
+    // `allSettled`, not `all`: a single protocol leg failing (an RPC hiccup, a protocol with
+    // no pools deployed yet) must not throw away the pools the other legs did find.
+    const poolsArray = await Promise.allSettled([
+      options.stableSwap ? queries.getStableSwapPools(query, options) : ([] as Pool[]),
+      options.v2Pools ? queries.getV2CandidatePools(query, options) : ([] as Pool[]),
+      options.v3Pools ? queries.getV3PoolsWithTicksOnChain(query, options) : ([] as Pool[]),
+      options.infinity ? queries.getInfinityCandidatePools(query, options) : ([] as Pool[]),
+    ])
+    return poolsArray.flatMap((r) => (r.status === 'fulfilled' ? (r.value as Pool[]) : [])) as Pool[]
   }
 
   const call = createAsyncCallWithFallbacks(defaultQuery, {
