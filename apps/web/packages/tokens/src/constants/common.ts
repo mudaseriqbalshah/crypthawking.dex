@@ -1,5 +1,6 @@
 import { ChainId } from '@pancakeswap/chains'
 import { ERC20Token } from '@pancakeswap/sdk'
+import { baseSepoliaTokens } from './baseSepolia'
 
 export const CAKE_MAINNET = new ERC20Token(
   ChainId.BSC,
@@ -159,6 +160,7 @@ export const CAKE = {
   ),
   [ChainId.BSC]: CAKE_MAINNET,
   [ChainId.BSC_TESTNET]: CAKE_TESTNET,
+  [ChainId.BASE_SEPOLIA]: baseSepoliaTokens.hawk,
   [ChainId.POLYGON_ZKEVM]: new ERC20Token(
     ChainId.POLYGON_ZKEVM,
     '0x0D1E753a25eBda689453309112904807625bEFBe',
@@ -368,11 +370,11 @@ export const USDC = {
   ),
   [ChainId.BASE_SEPOLIA]: new ERC20Token(
     ChainId.BASE_SEPOLIA,
-    '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
+    '0x582800AFC82bA6c8c8b9ce3Be0416E913f7E59c2',
     6,
-    'USDC',
-    'USD Coin',
-    'https://www.centre.io/usdc',
+    'tUSDC',
+    'Test USD Coin',
+    'https://dex.cryptohawking.com',
   ),
   [ChainId.MONAD_TESTNET]: new ERC20Token(
     ChainId.MONAD_TESTNET,
