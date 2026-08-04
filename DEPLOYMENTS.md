@@ -19,6 +19,30 @@ verified**.
 
 ## Our deployments
 
+| 6 | HawkingMulticall | `0x841631d67cf1b882383f3C469c78D69EF9a7520d` | Blockscout ✔ (auto bytecode-match, `is_verified: true`, compiler `v0.7.6+commit.7338295f`) |
+
+Task 6 (frontend phase) deployed 2026-08-04 via `contracts/tokens/script/02_DeployMulticall.s.sol`
+(idempotent — skips if `infra.HawkingMulticall` already has on-chain code). Deploy block
+45029781. Vendored 1:1 (branding rename only) from PancakeSwap's live BSC mainnet
+`PancakeInterfaceMulticallV2` at `0x39eecaE833c944ebb94942Fa44CaE46e87a8Da17`
+(`MULTICALL_ADDRESS[ChainId.BSC]` in `apps/web/packages/multicall/src/constants/contracts.ts`),
+source fetched via Sourcify v2 API (`https://sourcify.dev/server/v2/contract/56/0x39ee...`,
+matchId `29078989`, `creationMatch`/`runtimeMatch`: `match`, solc `0.7.6+commit.7338295f`,
+optimizer 1000000 runs, evmVersion istanbul, SPDX MIT) — chosen over the Etherscan/BscScan
+`getsourcecode` API because no `ETHERSCAN_API_KEY` is configured in `.env` and Etherscan's
+V2 multichain API rejects unauthenticated requests. Vendored at
+`contracts/tokens/src/vendor/HawkingMulticall.sol`, deployed via `vm.deployCode` (the
+vendored file is pinned to solc `=0.7.6`, incompatible with the 0.8.26 script pragma, so
+it's deployed from the compiled artifact rather than `new HawkingMulticall()`). Live probe:
+`gasLeft()` → non-reverting uint256, `gaslimit()` → `1200000000`, `multicall([])` →
+`(blockNumber, [])`, `multicallWithGasLimitation([], 100000)` → `(blockNumber, [], max uint256)`
+(the `calls.length - 1` underflow on an empty array is upstream's own behavior, not
+introduced here — logic was not touched per rebrand-only rule). Frontend wired:
+`MULTICALL_ADDRESS[ChainId.BASE_SEPOLIA]` = this address,
+`MULTICALL3_ADDRESSES[ChainId.BASE_SEPOLIA]` = canonical Multicall3 (already verified
+in `infra.Multicall3`).
+
+
 Deployer: `0x8DAFaBcEb8B05629cf1591A32f5fd8A1c0a75e95` (user-provided testnet key in
 gitignored `.env`; funded 0.4767 ETH, confirmed 2026-08-03). Supersedes the earlier
 generated `0xE2ec…5147`, which was never used and holds nothing.
