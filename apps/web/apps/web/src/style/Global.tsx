@@ -8,7 +8,7 @@ declare module 'styled-components' {
 
 const GlobalStyle = createGlobalStyle`
   * {
-    font-family: 'Kanit', sans-serif;
+    font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
   }
 
   html {

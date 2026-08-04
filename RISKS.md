@@ -223,3 +223,20 @@ Running log of anything guessed, stubbed, or blocked. Newest first.
 - **2026-08-03 — Anthropic/infra spend constraint** (from project memory 2026-08-01: user
   currently has no budget for paid services). Prefer free tiers: public RPC, Basescan free
   API key, no paid indexing until approved.
+- **2026-08-04 — v2Colors.ts ramps left untouched (Task 12 theme rebrand).** Per task-12
+  brief, `packages/uikit/src/tokens/v2Colors.ts` (v2Primary/Secondary/Tertiary/Positive/
+  Warning/Destructive/Disabled/DecorativeBlue ramps, teal-based) was left as-is — a
+  follow-up pass should re-derive it from the purple/pink CryptoHawking palette. Checked
+  consumers: `Badges.tsx` (Liquidity), `PoolAprButton/AprButton.tsx`, `PoolTokensBar.tsx`
+  (PoolDetail), `RemoveBinPosition.tsx`/`RemoveClPosition.tsx` (RemoveLiquidityInfinity) —
+  none render on `/swap` or `/farms` (the Task 12 verification routes), so no visible clash
+  today, but liquidity/pool-detail pages will still show old teal accents until v2Colors
+  is rebranded.
+- **2026-08-04 — Kanit font-family literals remain in ~20 view/component files**
+  (`TradingViewChart.tsx`, `HomeV2/*`, `CakeStaking/*`, `FarmCard/CardActionsContainer.tsx`,
+  etc.) outside Task 12's file list (`ResetCSS.tsx`, `Global.tsx`, `tokens/index.ts`,
+  `_document.tsx`). Since the Kanit Google Fonts `<link>` is now removed, these
+  `font-family: Kanit` declarations fail to resolve and the browser falls back to the
+  next stack entry (usually `sans-serif`/system default) — so no blocky Kanit glyphs
+  render in practice — but the dead literals should be swept in a follow-up pass for
+  cleanliness.
