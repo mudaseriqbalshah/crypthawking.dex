@@ -2,6 +2,62 @@
 
 Running log of anything guessed, stubbed, or blocked. Newest first.
 
+- **2026-08-04 — frontend farms (Task 8): V2 classic-MasterChef farms (pid 0-3, incl.
+  HAWK single-staking) do not render on `/farms` for Base Sepolia; only the 3 V3 farms do.**
+  Root cause is NOT `bCakeWrapperAddress` (confirmed optional/safe everywhere it's read —
+  `packages/farms/src/getLegacyFarmConfig.ts:35,50`, `packages/farms/src/v2/fetchFarmsV2.ts:65`).
+  It's two separate, pre-existing architectural issues in this fork's V2 legacy-farm
+  pipeline, neither of which is Base-Sepolia-specific:
+  1. `apps/web/src/state/farms/hooks.ts:144` only dispatches the V2 public-data fetch when
+     `supportedChainIdV2.includes(chainId)`. `packages/farms/src/index.ts:44-48`
+     (`createFarmFetcher.fetchFarms`) and `fetchMasterChefV2Data`/`fetchMasterChefData`
+     (`packages/farms/src/v2/fetchFarmsV2.ts:258,295`) hardcode
+     `chainId = isTestnet ? ChainId.BSC_TESTNET : ChainId.BSC` and call
+     `provider({ chainId })` with that hardcoded chain — completely ignoring the actual
+     active chain. Since this fork's wagmi client config (`apps/web/apps/web/src/utils/wagmi.ts`)
+     has no BSC/BSC_TESTNET client (Base Sepolia only per the engineering rules),
+     `provider(...)` resolves to `undefined` and `.multicall(...)` throws, crashing the
+     whole `/farms` page with an unhandled runtime error. Confirmed by reproducing:
+     adding `ChainId.BASE_SEPOLIA` to `supportedChainIdV2` immediately produced
+     `TypeError: Cannot read properties of undefined (reading 'multicall')` at
+     `packages/farms/src/index.ts:42` (`fetchMasterChefV2Data`) on page load.
+  2. Fixing (1) is out of scope for the local-config task (it requires parameterizing
+     `createFarmFetcher`/`fetchMasterChefV2Data` by the real chainId, touching core
+     `packages/farms/src/index.ts` and `v2/fetchFarmsV2.ts` logic — a bigger, riskier
+     change than "add local config").
+  **Resolution taken:** `ChainId.BASE_SEPOLIA` was deliberately left OUT of
+  `supportedChainIdV2` (`packages/farms/src/const.ts`, see inline comment) to avoid
+  triggering the crash; it IS in `supportedChainIdV3` (V3 farms use a completely separate,
+  correctly-chainId-parameterized fetch path — `apps/web/src/state/farmsV3/hooks.ts:75-119`
+  — confirmed working end-to-end against our deployed MasterChefV3). `masterChefAddresses[BASE_SEPOLIA]`
+  and a `legacyFarmConfig` array for pid 0-3 were still added to
+  `packages/farms/src/farms/baseSepolia.ts` for when `createFarmFetcher` gets fixed to be
+  chain-aware — they are currently dead code on this path. Follow-up task: parameterize
+  `createFarmFetcher`/`fetchMasterChefV2Data`/`fetchMasterChefData` by the actual chainId
+  (using `masterChefAddresses[chainId]` instead of the hardcoded BSC/BSC_TESTNET branch),
+  then add `BASE_SEPOLIA` to `supportedChainIdV2`.
+
+- **2026-08-04 — frontend farms (Task 8): fixed a separate, also pre-existing, V3 farm
+  bug that would have blocked V3 farms too.** `farmV3FetchFarms`
+  (`packages/farms/src/fetchFarmsV3.ts`, was line 43) unconditionally calls
+  `provider({ chainId: ChainId.BSC }).readContract(...)` against a Chainlink CAKE/USD
+  price feed that only exists on BSC mainnet, to compute `cakePrice` for every chain's
+  APR math — regardless of which chain the farms are actually on. With no BSC client
+  configured in this fork, that call throws `TypeError: Cannot read properties of
+  undefined (reading 'readContract')`, which aborted `Promise.all(...)` and made
+  `farmV3FetchFarms` (and therefore the whole V3 farm list) fail for every chain, not
+  just Base Sepolia — reproduced identically via both the client-side hook and the
+  `/api/v3/[chainId]/farms` route (500, same stack trace). Patched narrowly: the
+  Chainlink lookup is now wrapped so a missing/failing BSC provider degrades to a `'0'`
+  price (logged via `console.error`) instead of throwing, letting the rest of the pool
+  data (pool pairs, fee tiers, multipliers, on-chain liquidity) render normally. APR
+  will read 0% until a real price source is wired up for this fork (separate task) —
+  this only restores farm-card rendering, it does not add price data. This file
+  (`packages/farms/src/fetchFarmsV3.ts`) was not in Task 8's declared file list; the fix
+  was necessary to meet the task's core "3 v3 farms render" acceptance criterion and is
+  narrowly scoped (one call site, defensive try/catch, no behavior change for chains that
+  do have a working BSC client).
+
 - **2026-08-04 — frontend WalletConnect projectId is still upstream PancakeSwap's**
   (`e542ff314e26ff34de2d4fba98db70bb`, in `apps/web/apps/web/src/utils/wagmi.ts`,
   `walletConnectConnector` + `walletConnectNoQrCodeConnector`). Fine for local dev

@@ -40,13 +40,27 @@ export async function farmV3FetchFarms({
 }) {
   const [poolInfos, cakePrice, v3PoolData] = await Promise.all([
     fetchPoolInfos(farms, chainId, provider, masterChefAddress),
-    provider({ chainId: ChainId.BSC })
-      .readContract({
-        abi: chainlinkAbi,
-        address: '0xB6064eD41d4f67e353768aA239cA86f4F73665a1',
-        functionName: 'latestAnswer',
-      })
-      .then((res) => formatUnits(res, 8)),
+    // NOTE: this Chainlink CAKE/USD feed only exists on BSC mainnet. Forks/deployments
+    // (e.g. testnet-only forks) that have no BSC client configured in `provider` would
+    // otherwise have this `readContract` call throw (provider({chainId: BSC}) returns
+    // undefined), aborting the whole farm fetch for every chain. Degrade gracefully to
+    // '0' instead so farms on other chains can still render (their APR will just be 0
+    // until this fork wires up its own price source).
+    Promise.resolve(provider({ chainId: ChainId.BSC }))
+      .then((client) =>
+        client
+          ? client.readContract({
+              abi: chainlinkAbi,
+              address: '0xB6064eD41d4f67e353768aA239cA86f4F73665a1',
+              functionName: 'latestAnswer',
+            })
+          : undefined,
+      )
+      .then((res) => (res ? formatUnits(res, 8) : '0'))
+      .catch((error) => {
+        console.error('Failed to fetch CAKE/USD price from BSC Chainlink feed', error)
+        return '0'
+      }),
     fetchV3Pools(farms, chainId, provider),
   ])
 
