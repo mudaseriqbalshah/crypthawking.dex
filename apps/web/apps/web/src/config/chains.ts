@@ -74,25 +74,7 @@ export const L2_CHAIN_IDS: ChainId[] = [
   ChainId.BASE_SEPOLIA,
 ]
 
-export const CHAINS: [Chain, ...Chain[]] = [
-  bsc,
-  bscTestnet,
-  mainnet,
-  goerli,
-  sepolia,
-  polygonZkEvm,
-  polygonZkEvmTestnet,
-  zkSync,
-  arbitrum,
-  arbitrumGoerli,
-  arbitrumSepolia,
-  linea,
-  lineaTestnet,
-  base,
-  baseGoerli,
-  baseSepolia,
-  opBNB,
-  opBNBTestnet,
-  scrollSepolia,
-  monadTestnet,
-]
+// Single-chain gating: CryptoHawking DEX is Base Sepolia only. Other chain imports
+// above are kept (config maps elsewhere reference them) — only this array drives
+// which chains are enabled in wagmi/UI.
+export const CHAINS: [Chain, ...Chain[]] = [baseSepolia]

@@ -19,10 +19,12 @@ export const injectedConnector = injected({
 })
 
 export const coinbaseConnector = coinbaseWallet({
-  appName: 'PancakeSwap',
-  appLogoUrl: 'https://pancakeswap.com/logo.png',
+  appName: 'CryptoHawking DEX',
+  appLogoUrl: 'https://dex.cryptohawking.com/logo.png',
 })
 
+// TODO(RISKS.md): own WalletConnect projectId before deploy — currently reusing the
+// upstream PancakeSwap projectId for local dev only.
 export const walletConnectConnector = walletConnect({
   // ignore the error in test environment
   // Error: To use QR modal, please install @walletconnect/modal package

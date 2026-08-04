@@ -51,7 +51,7 @@ export const useActiveChainId = (checkChainId?: number) => {
   const queryChainId = useAtomValue(queryChainIdAtom)
 
   const { chainId: wagmiChainId } = useAccount()
-  const chainId = localChainId ?? wagmiChainId ?? (queryChainId >= 0 ? ChainId.BSC : undefined)
+  const chainId = localChainId ?? wagmiChainId ?? (queryChainId >= 0 ? ChainId.BASE_SEPOLIA : undefined)
 
   const isNotMatched = useDeferredValue(wagmiChainId && localChainId && wagmiChainId !== localChainId)
 
@@ -67,7 +67,7 @@ export const useActiveChainId = (checkChainId?: number) => {
 
   return useMemo(
     () => ({
-      chainId: chainId && isChainSupported(chainId) ? chainId : ChainId.BSC,
+      chainId: chainId && isChainSupported(chainId) ? chainId : ChainId.BASE_SEPOLIA,
       isWrongNetwork,
       isNotMatched,
     }),
