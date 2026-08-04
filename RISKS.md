@@ -2,6 +2,14 @@
 
 Running log of anything guessed, stubbed, or blocked. Newest first.
 
+- **2026-08-04 — frontend WalletConnect projectId is still upstream PancakeSwap's**
+  (`e542ff314e26ff34de2d4fba98db70bb`, in `apps/web/apps/web/src/utils/wagmi.ts`,
+  `walletConnectConnector` + `walletConnectNoQrCodeConnector`). Fine for local dev
+  (WalletConnect just needs *a* registered projectId to issue relay sessions), but before
+  any real deploy we need our own WalletConnect Cloud project so wallet-side branding/
+  metadata is ours and we're not riding on PancakeSwap's rate limits. TODO comment left
+  at the call site.
+
 - **2026-08-04 — frontend SDK: no SmartRouter, no MixedRouteQuoter, no FOT detector on
   Base Sepolia (Task 4).** `SMART_ROUTER_ADDRESSES[BASE_SEPOLIA]`,
   `MIXED_ROUTE_QUOTER_ADDRESSES[BASE_SEPOLIA]` (in both

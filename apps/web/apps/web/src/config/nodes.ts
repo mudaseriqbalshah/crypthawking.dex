@@ -88,7 +88,11 @@ export const SERVER_NODES = {
   [ChainId.SCROLL_SEPOLIA]: scrollSepolia.rpcUrls.default.http,
   [ChainId.SEPOLIA]: sepolia.rpcUrls.default.http,
   [ChainId.ARBITRUM_SEPOLIA]: arbitrumSepolia.rpcUrls.default.http,
-  [ChainId.BASE_SEPOLIA]: baseSepolia.rpcUrls.default.http,
+  [ChainId.BASE_SEPOLIA]: [
+    process.env.NEXT_PUBLIC_BASE_SEPOLIA_RPC,
+    'https://sepolia.base.org',
+    ...baseSepolia.rpcUrls.default.http,
+  ].filter(Boolean),
   [ChainId.MONAD_TESTNET]: [
     'https://testnet-rpc2.monad.xyz/52227f026fa8fac9e2014c58fbf5643369b3bfc6',
     ...monadTestnet.rpcUrls.default.http,
@@ -173,7 +177,11 @@ export const PUBLIC_NODES: Record<ChainId, string[] | readonly string[]> = {
   [ChainId.SCROLL_SEPOLIA]: scrollSepolia.rpcUrls.default.http,
   [ChainId.SEPOLIA]: sepolia.rpcUrls.default.http,
   [ChainId.ARBITRUM_SEPOLIA]: arbitrumSepolia.rpcUrls.default.http,
-  [ChainId.BASE_SEPOLIA]: baseSepolia.rpcUrls.default.http,
+  [ChainId.BASE_SEPOLIA]: [
+    process.env.NEXT_PUBLIC_BASE_SEPOLIA_RPC,
+    'https://sepolia.base.org',
+    ...baseSepolia.rpcUrls.default.http,
+  ].filter(Boolean),
   [ChainId.MONAD_TESTNET]: [
     'https://testnet-rpc2.monad.xyz/52227f026fa8fac9e2014c58fbf5643369b3bfc6',
     ...monadTestnet.rpcUrls.default.http,
