@@ -4,6 +4,13 @@
  * @param uri to convert to fetch-able http url
  */
 export default function uriToHttp(uri: string): string[] {
+  // Relative path (e.g. a locally-hosted token list served from our own public/ dir,
+  // like /cryptohawking.tokenlist.json). No scheme to switch on — `fetch()` in a
+  // browser resolves this against the current page origin, so just pass it through.
+  // Server-side callers (no implicit origin) must absolutize before calling in.
+  if (uri.startsWith('/')) {
+    return [uri]
+  }
   const protocol = uri.split(':')[0].toLowerCase()
   switch (protocol) {
     case 'https':
