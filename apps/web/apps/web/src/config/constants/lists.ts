@@ -1,5 +1,8 @@
 import { ChainId } from '@pancakeswap/chains'
 
+// CryptoHawking's own locally-served token list (served from public/, no external host).
+export const CRYPTOHAWKING_DEFAULT = '/cryptohawking.tokenlist.json'
+
 export const PANCAKE_EXTENDED = 'https://tokens.pancakeswap.finance/pancakeswap-extended.json'
 
 const COINGECKO_BSC = 'https://tokens.coingecko.com/binance-smart-chain/all.json'
@@ -53,48 +56,12 @@ export const UNSUPPORTED_LIST_URLS: string[] = []
 export const WARNING_LIST_URLS: string[] = []
 
 // lower index == higher priority for token import
-export const DEFAULT_LIST_OF_LISTS: string[] = [
-  ...BSC_URLS,
-  ...ETH_URLS,
-  ...ZKSYNC_URLS,
-  ...LINEA_URLS,
-  ...POLYGON_ZKEVM_URLS,
-  ...BASE_URLS,
-  ...ARBITRUM_URLS,
-  OP_SUPER_CHAIN_URL,
-  ...UNSUPPORTED_LIST_URLS, // need to load unsupported tokens as well
-  ...WARNING_LIST_URLS,
-  ...OPBNB_URLS,
-  ...MONAD_TESTNET_URLS,
-]
+// CryptoHawking only serves Base Sepolia — our own list is the sole source of truth.
+export const DEFAULT_LIST_OF_LISTS: string[] = [CRYPTOHAWKING_DEFAULT]
 
 // default lists to be 'active' aka searched across
-export const DEFAULT_ACTIVE_LIST_URLS: string[] = [
-  PANCAKE_EXTENDED,
-  PANCAKE_ETH_DEFAULT,
-  PANCAKE_POLYGON_ZKEVM_DEFAULT,
-  PANCAKE_ZKSYNC_DEFAULT,
-  PANCAKE_ARB_DEFAULT,
-  PANCAKE_LINEA_DEFAULT,
-  PANCAKE_BASE_DEFAULT,
-  PANCAKE_OPBNB_DEFAULT,
-  OP_SUPER_CHAIN_URL,
-  COINGECKO_BSC,
-  COINGECKO_ETH,
-  COINGECKO_ARB,
-  COINGECKO_BASE,
-  PANCAKE_MONAD_TESTNET_DEFAULT,
-  COINGECKO_LINEA,
-]
+export const DEFAULT_ACTIVE_LIST_URLS: string[] = [CRYPTOHAWKING_DEFAULT]
 
 export const MULTI_CHAIN_LIST_URLS: { [chainId: number]: string[] } = {
-  [ChainId.BSC]: BSC_URLS,
-  [ChainId.ETHEREUM]: ETH_URLS,
-  [ChainId.ZKSYNC]: ZKSYNC_URLS,
-  [ChainId.POLYGON_ZKEVM]: POLYGON_ZKEVM_URLS,
-  [ChainId.ARBITRUM_ONE]: ARBITRUM_URLS,
-  [ChainId.LINEA]: LINEA_URLS,
-  [ChainId.BASE]: BASE_URLS,
-  [ChainId.OPBNB]: OPBNB_URLS,
-  [ChainId.MONAD_TESTNET]: MONAD_TESTNET_URLS,
+  [ChainId.BASE_SEPOLIA]: [CRYPTOHAWKING_DEFAULT],
 }

@@ -6,13 +6,15 @@ export const GRAPH_API_PROFILE = `${THE_GRAPH_PROXY_API}/profile`
 
 export const GRAPH_API_LOTTERY = `${THE_GRAPH_PROXY_API}/lottery-bsc`
 export const SNAPSHOT_BASE_URL = process.env.NEXT_PUBLIC_SNAPSHOT_BASE_URL
-export const API_PROFILE = 'https://profile.pancakeswap.com'
-export const API_NFT = 'https://nft.pancakeswap.com/api/v1'
+// CryptoHawking does not run a profile/NFT backend; dead-local value so no request leaves for pancake hosts.
+export const API_PROFILE = '/api/disabled'
+export const API_NFT = '/api/disabled'
 export const SNAPSHOT_API = `${SNAPSHOT_BASE_URL}/graphql`
 export const SNAPSHOT_HUB_API = `${SNAPSHOT_BASE_URL}/api/message`
 export const GRAPH_API_POTTERY = `${THE_GRAPH_PROXY_API}/pottery`
 // export const ONRAMP_API_BASE_URL = 'https://monkfish-app-s4mda.ondigitalocean.app'
-export const ONRAMP_API_BASE_URL = 'https://onramp2-api.pancakeswap.com'
+// CryptoHawking does not run an onramp backend; dead-local value so no request leaves for pancake hosts.
+export const ONRAMP_API_BASE_URL = '/api/disabled'
 export const TRANSAK_API_BASE_URL = 'https://api-stg.transak.com/api/v1'
 export const MOONPAY_BASE_URL = 'https://api.moonpay.com'
 export const NOTIFICATION_HUB_BASE_URL = 'https://notification-hub.pancakeswap.com'
@@ -38,7 +40,8 @@ export const TC_MOD_SUBGRAPH = `${THE_GRAPH_PROXY_API}/trading-competition-v4`
 
 export const BIT_QUERY = 'https://graphql.bitquery.io'
 
-export const ACCESS_RISK_API = 'https://red.alert.pancakeswap.com/red-api'
+// CryptoHawking does not run a risk-scanning backend; dead-local value so no request leaves for pancake hosts.
+export const ACCESS_RISK_API = '/api/disabled'
 
 export const CELER_API = 'https://api.celerscan.com/scan'
 
@@ -57,7 +60,8 @@ export const INFO_CLIENT_ETH = V2_SUBGRAPH_URLS[ChainId.ETHEREUM]
 
 export const BLOCKS_CLIENT_WITH_CHAIN = BLOCKS_SUBGRAPH_URLS
 
-export const ASSET_CDN = process.env.NEXT_PUBLIC_ASSET_CDN || 'https://assets.pancakeswap.finance'
+// CryptoHawking has no CDN; empty string resolves to relative URLs served from our own public/ dir.
+export const ASSET_CDN = process.env.NEXT_PUBLIC_ASSET_CDN || ''
 
 export const V3_SUBGRAPH_URLS = {
   ...V3_SUBGRAPHS,
@@ -88,8 +92,9 @@ export const QUOTING_API_PREFIX = `${X_API_ENDPOINT}/order-price`
 
 export const QUOTING_API = `${QUOTING_API_PREFIX}/get-price`
 
-export const FARMS_API = 'https://farms-api.pancakeswap.com'
-export const FARMS_API_V2 = 'https://v3-farm-api-prod-6ulht.ondigitalocean.app/api'
+// CryptoHawking does not run a farms API backend; dead-local value so no request leaves for pancake hosts.
+export const FARMS_API = '/api/disabled'
+export const FARMS_API_V2 = '/api/disabled'
 
 export const MERCURYO_WIDGET_ID = process.env.NEXT_PUBLIC_MERCURYO_WIDGET_ID || '64d1f9f9-85ee-4558-8168-1dc0e7057ce6'
 
@@ -97,7 +102,8 @@ export const MOONPAY_API_KEY = process.env.NEXT_PUBLIC_MOONPAY_LIVE_KEY || 'pk_t
 
 export const TRANSAK_API_KEY = process.env.NEXT_PUBLIC_TRANSAK_LIVE_KEY || 'bf960e79-6d98-4fd0-823d-8409d290c346'
 
-export const WALLET_API = 'https://wallet-api.pancakeswap.com'
+// CryptoHawking does not run a wallet API backend; dead-local value so no request leaves for pancake hosts.
+export const WALLET_API = '/api/disabled'
 
 export const BINANCE_DATA_API = 'https://data-api.binance.vision/api'
 

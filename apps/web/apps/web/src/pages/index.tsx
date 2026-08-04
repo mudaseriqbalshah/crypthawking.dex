@@ -1,15 +1,16 @@
-import { Suspense } from 'react'
-import { HomeV2 } from 'views/HomeV2'
+import type { GetServerSideProps } from 'next'
 
-const IndexPage = () => {
-  return (
-    <Suspense>
-      <HomeV2 />
-    </Suspense>
-  )
+// The PancakeSwap-branded marketing home page is out of scope for CryptoHawking;
+// redirect straight to the swap interface.
+export const getServerSideProps: GetServerSideProps = async () => {
+  return {
+    redirect: {
+      destination: '/swap',
+      permanent: false,
+    },
+  }
 }
 
-IndexPage.chains = []
-IndexPage.isShowV4IconButton = true
+const IndexPage = () => null
 
 export default IndexPage

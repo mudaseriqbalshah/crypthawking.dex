@@ -1,0 +1,60 @@
+{
+  "name": "CryptoHawking",
+  "timestamp": "2026-08-04T00:00:00Z",
+  "version": {
+    "major": 1,
+    "minor": 0,
+    "patch": 0
+  },
+  "tokens": [
+    {
+      "chainId": 84532,
+      "address": "0x4200000000000000000000000000000000000006",
+      "symbol": "WETH",
+      "name": "Wrapped Ether",
+      "decimals": 18
+    },
+    {
+      "chainId": 84532,
+      "address": "0x582800AFC82bA6c8c8b9ce3Be0416E913f7E59c2",
+      "symbol": "tUSDC",
+      "name": "Test USD Coin",
+      "decimals": 6
+    },
+    {
+      "chainId": 84532,
+      "address": "0x85323e2368865E6dcfFC8dEf64016A5Eafe8D988",
+      "symbol": "tUSDT",
+      "name": "Test Tether USD",
+      "decimals": 6
+    },
+    {
+      "chainId": 84532,
+      "address": "0x66dbAe86eC0689cC398eF3f1D4486261EC1ffa07",
+      "symbol": "tDAI",
+      "name": "Test Dai",
+      "decimals": 18
+    },
+    {
+      "chainId": 84532,
+      "address": "0xE5839C45b8c282E6786D6CC7Dc1c6aB70D5b3D70",
+      "symbol": "tWBTC",
+      "name": "Test Wrapped BTC",
+      "decimals": 8
+    },
+    {
+      "chainId": 84532,
+      "address": "0x2843bABb7557CD51e8007F8D2a960457c734C570",
+      "symbol": "HAWK",
+      "name": "Crypto Hawking Token",
+      "decimals": 18
+    },
+    {
+      "chainId": 84532,
+      "address": "0x8f7BE274b5e85C4b244CAe562AeBf023f70a185f",
+      "symbol": "NEST",
+      "name": "Nest Token",
+      "decimals": 18
+    }
+  ]
+}
