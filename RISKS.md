@@ -2,6 +2,160 @@
 
 Running log of anything guessed, stubbed, or blocked. Newest first.
 
+- **2026-08-05 — FRONTEND PHASE ACCEPTANCE (Task 15): what actually passed, and how.**
+  Full evidence in `.superpowers/sdd/2026-08-04-frontend-phase/task-15-report.md`.
+  Summary of the gate:
+  - **Ran UI-driven (browser, real DOM):** page render + HTTP 200 + testnet banner +
+    no-Pancake-branding + no-`*.pancakeswap.*`-resource checks on `/swap`,
+    `/liquidity/positions`, `/farms`, `/faucet` at 1440x900 and 390x844. **Re-verified
+    2026-08-05 (final run):** `performance.getEntriesByType('resource')` contained
+    **zero** `pancake` hosts on all four pages at both viewports — the §6.9 criterion
+    the leak fixes target. `/farms` renders the farm list with live APRs
+    (403%, 594.9%, 513.02%, 631.58% + two 0% rows) and `HAWK-ETH` / `HAWK-WETH`
+    labels. Caveats from that run, all dev-server artifacts or already-logged
+    degradations: `/farms` needs up to ~5.5 min to compile in `next dev` and exceeded
+    the 180s navigation budget inside the multi-page script (it passes when probed
+    alone); the previously "flaky" `CAKE` string on `/farms` **did reproduce** this
+    time (`brand: "CAKE"` with the farm rows otherwise correctly branded) — it is a
+    real, intermittent copy leak on that page, not just a loading artifact, and needs
+    a follow-up; local `/web/native/84532.png`, `/web/wallets/*.png`,
+    `/web/universalFarms/empty_list_bunny.png` 404 (ASSET_CDN deliberately blanked);
+    `/api/pools/tvlref` 400 and `/api/pools/candidates` returns `[]`.
+  - **Ran FALLBACK (script-driven, same contracts/selectors the UI calls):** every
+    on-chain flow — v2 swap, v3 swap, Infinity swap, v2 add+remove liquidity, v3 mint
+    + collect, farm stake/harvest/unstake, faucet claim, WETH wrap. All tx hashes are
+    in the report. **No wallet-connected flow was exercised through the UI.**
+  - **FAILED:** the swap form renders no quote for any pair (see the quote entry below),
+    so §6.2/§6.3 "on-chain tx succeeds *from the UI*" is unproven end-to-end.
+    **New root-cause evidence 2026-08-05:** the candidate-pool source is empty, so the
+    router has nothing to route over. `GET /api/pools/candidates?...&protocol=v2,v3`
+    returns `{"data":[]}`, and the dev server logs
+    `Failed to parse URL from /cached/pools/candidates/infinity/baseSepolia/...`
+    (`NEXT_PUBLIC_EXPLORE_API_ENDPOINT` is blank because it pointed at a PancakeSwap
+    host) plus `API request failed with status 422`. `/api/pools/tvlref` 400s. The
+    browser also shows `/_next/static/chunks/quote-worker.js net::ERR_ABORTED`.
+    So the fix is: give `edgePoolQueries` an on-chain/registry-backed candidate-pool
+    path for 84532 (or deploy the subgraphs in `subgraphs/`), not a quoter tweak.
+  - Remaining degradations carried out of the phase: local `/web/**` asset 404s, no
+    quoting/APR/explore backends, Privy+Firebase still upstream's, `@binance/w3w-core`
+    probing public BSC RPCs, WalletConnect projectId still upstream's.
+
+- **2026-08-05 — Swap quote does not render on Base Sepolia (Task 15 acceptance, OPEN,
+  blocks spec §6.2/§6.3 via the UI).** Typing an amount into `/swap` produces no output
+  amount and no error in the swap card, for the default ETH→HAWK pair *and* for
+  tUSDC→tUSDT (a pair with live v2, v3 and Infinity pools — all three were swapped
+  successfully by script in the same session). Verified over 60s of polling, input value
+  sticks (`0.01`), the USD estimate for the input renders (`~10.00 USD`), so token
+  metadata and pricing resolve; only the route/quote is missing. Not conclusively
+  isolated. Candidate causes, in order of suspicion: (1) the quoter is wired to the
+  upstream X-API (`NEXT_PUBLIC_QUOTING_API`, previously `https://x.pancakeswap.com`,
+  blanked in this task because it is a PancakeSwap host — §6.9) with no working
+  client-side fallback for 84532; (2) SmartRouter / mixed-route quoter absent on
+  Base Sepolia (already logged below, 2026-08-04); (3) the quote worker chunk
+  (`quote-worker.js`) failing to load. Next step for whoever picks this up: instrument
+  `apps/web/src/quoter/**` and confirm whether the on-chain quote provider (which is why
+  `HawkingMulticall` was deployed in Task 6) is reached at all.
+
+- **2026-08-05 — Headless wallet-connected UI acceptance is not achievable with the
+  current browser tooling (Task 15).** Six attempts across three injection mechanisms;
+  a viem-backed EIP-1193 provider (`scripts/acceptance/wallet.mjs`) works correctly in
+  Node but cannot be made visible to the app at the right time:
+  1. `page.addInitScript` — patchright (the stealth Playwright fork the browser-automation
+     skill drives) executes init scripts in an **isolated world**; probed and confirmed
+     (`window.__initRan === false` in the main world while `page.exposeFunction` bindings
+     and `page.evaluate` globals *are* visible there).
+  2. CDP `Page.addScriptToEvaluateOnNewDocument` (with `Page.enable`/`Runtime.enable`,
+     `runImmediately`) — accepted without error, script never runs. Also suppressed.
+  3. Rewriting the HTML document response via `page.route` and prepending an inline
+     `<script>` (CSP nonce copied from Next.js's own tags) — the fulfil succeeds,
+     the script still does not execute.
+  Post-load `page.evaluate` injection *does* work (`window.ethereum.isMetaMask === true`,
+  correct `selectedAddress`) but is too late: `walletsConfig`'s `installed` getter in
+  `apps/web/src/config/wallet.ts` is evaluated as the app mounts, so the connect modal
+  renders the "Metamask is not installed / Install" step instead of connecting, and the
+  connector never issues a single RPC call. Two incidental findings worth keeping:
+  the Next.js dev overlay (`<nextjs-portal>`) covers the viewport and silently eats
+  Playwright clicks (`killDevOverlay` in `wallet.mjs` strips it), and the wallet-list
+  entries are styled-component `<div>`s, not `<button>`s, so role/name lookups miss them.
+  Consequence: **all wallet-connected acceptance ran script-driven, not UI-driven.**
+  To close this properly, either run a real browser profile with a MetaMask extension
+  (Synpress-style) or drive standard Playwright rather than patchright.
+
+- **2026-08-05 — PancakeSwap-host leaks closed during the acceptance pass (Task 15,
+  spec §6.9).** The smoke found live requests to PancakeSwap-operated hosts on the
+  acceptance pages, which §6.9 forbids. Fixed in this task (disclosed as scope beyond a
+  pure gate, because the criterion is binary):
+  `packages/uikit/src/util/endpoints.ts`, `packages/widgets-internal/utils/endpoints.ts`,
+  `packages/ui-wallets/src/WalletModal.tsx`, `packages/ui-wallets/src/components/
+  SocialLoginModal.tsx` (ASSET_CDN default `https://assets.pancakeswap.finance` → `''`);
+  `apps/web/src/components/Logo/CurrencyLogoV2.tsx` and `apps/web/src/views/Info/
+  components/CurrencyLogo/index.tsx` (native/token image CDNs dropped);
+  `packages/widgets-internal/components/CurrencyLogo/utils.ts` and
+  `apps/web/src/utils/tokenImages.ts` (`tokens.pancakeswap.finance` → optional
+  `NEXT_PUBLIC_TOKEN_IMAGE_CDN`, unset ⇒ no URL);
+  `apps/web/src/components/AdPanel/hooks/usePicksConfig.tsx`,
+  `packages/smart-router/evm/v3-router/functions/getAdditionalBase.ts`,
+  `apps/web/src/quoter/atom/routingStrategy.ts` (proofs.pancakeswap.com CMS fetches now
+  gated on `NEXT_PUBLIC_PROOF_API`, unset ⇒ skipped);
+  `apps/web/src/state/farmsV4/state/poolApr/fetcher.ts` (Merkl `mainProtocolId=pancake-swap`
+  query gated on `NEXT_PUBLIC_MERKL_API`); and `apps/web/.env` + `.env.development`
+  (MM/quoting/proof/explore endpoints blanked). Not exhaustive — `grep -rn
+  'pancakeswap\.\(finance\|com\)'` still hits ~20 files under trimmed/unreachable views
+  (Pools, CakeStaking, Pottery, AffiliatesProgram, IFO, solana/jupiter packages) and the
+  `PANCAKE_*` token-list constants in `config/constants/lists.ts`. Those did not fire on
+  the acceptance pages but should be swept before any public deploy.
+
+- **2026-08-05 — Privy social login + Firebase still use upstream PancakeSwap's project
+  credentials (Task 15, violates CLAUDE.md rule 1, OPEN).** `NEXT_PUBLIC_PRIVY_APP_ID`
+  (`cm9jd1prg03msl80mz1jnuv9f`), `NEXT_PUBLIC_PRIVY_CLIENT_ID`, `NEXT_PUBLIC_FIREBASE_API_KEY`
+  and `NEXT_PUBLIC_FIREBASE_APP_ID` in `apps/web/apps/web/.env.development` are
+  PancakeSwap's. Blanking them was attempted and **reverted**: `@privy-io/react-auth`
+  hard-throws `Cannot initialize the Privy provider with an invalid Privy app ID` and the
+  whole app 500s, because `usePrivy` is consumed unconditionally by
+  `apps/web/src/components/WalletModalV2/WalletModal.tsx` and
+  `apps/web/src/contexts/Privy/provider.tsx`. Properly removing the social-login stack
+  (or gating the provider behind a feature flag with stubbed hooks) is follow-up work.
+  The upstream `console.error` on missing Privy env vars was removed in
+  `apps/web/src/contexts/Privy/privy.tsx` since unconfigured is our intended state.
+  Live consequence: every page load hits `auth.privy.io` (fails, non-fatal).
+
+- **2026-08-05 — `/web/**` static assets 404 locally (Task 15; the deferred Task-10
+  `ASSET_CDN=''` item, now confirmed live).** With `NEXT_PUBLIC_ASSET_CDN=''` the wallet,
+  chain and native-currency icons resolve to relative paths that do not exist under
+  `apps/web/apps/web/public/`: `/web/wallets/{metamask,trust,okx-wallet,binance-w3w,
+  coinbase,walletconnect,opera,brave}.png`, `/web/chains/84532.png`,
+  `/web/chains/square/84532.svg`, `/web/native/84532.png`,
+  `/web/universalFarms/empty_list_bunny.png`. ~10 console 404s per page load on every
+  acceptance page. Not a Pancake-host leak (that was the point of the change) and not
+  functional — the UI renders with broken images — but it is the single largest source of
+  console noise and should be closed by adding our own icons under `public/web/**`.
+
+- **2026-08-05 — No quoting / APR / explore backends exist for 84532 (Task 15).** With
+  the upstream endpoints blanked, the app now requests local URLs that nothing serves:
+  `/v1/routes` (bridge API, 404), `/api/pools/tvlref` and `/api/pools/candidates`
+  (HTTP 400 on `/liquidity/positions`), and `http://localhost:4123/cached/pools/apr/
+  {v2,v3,stable}/base-sepolia/farms-lp` (connection refused — `NEXT_PUBLIC_EXPLORE_API_ENDPOINT`
+  blank falls back to a hardcoded `http://localhost:4123` in
+  `apps/web/src/state/info/api/client.ts`). Farms still show non-zero APR because the
+  values are computed on-chain; the explore API is only a cache. These are Phase-7
+  (`apps/api` + subgraphs) work, explicitly out of scope for this phase.
+
+- **2026-08-05 — `@binance/w3w-core` probes public BSC RPCs on every page load
+  (Task 15).** `https://bscrpc.com/` (HTTP 401), `bsc-dataseed2.ninicoin.io`,
+  `rpc.ankr.com/bsc`, `binance.nodereal.io`, plus a `wss://nbstream.binance.click/
+  wallet-connector` websocket that fails DNS. Comes from the Binance Web3 Wallet
+  connector in `apps/web/src/utils/wagmi.ts`, not from our chain config. Harmless but
+  noisy, and it is a third-party network dependency on a testnet-only fork — consider
+  dropping the connector from `CONNECTORS`.
+
+- **2026-08-05 — "CAKE" text reproduced on `/farms` (Task 15).** The flaky observation
+  logged 2026-08-04 (bottom of this file) **reproduced deterministically** during the
+  acceptance smoke: `document.body.innerText` on `/farms` matches `CAKE` once farm rows
+  have loaded. Farm pair labels themselves are correct (`HAWK-ETH`, `ETH-tUSDC`,
+  `tUSDC-tUSDT`, `HAWK-WETH`, `tUSDC-WETH`), so this is a residual label elsewhere on the
+  page (likely a reward-token or earnings column). Spec §6.10 says branding must show no
+  Pancake marks — treat as an open branding defect, not a flake.
+
 - **2026-08-04 — frontend Infinity SDK: 5 contracts unsupported on Base Sepolia (Task 9).**
   `INFI_MIXED_QUOTER_ADDRESSES`, `INFI_CL_MIGRATOR_ADDRESSES`, `INFI_BIN_MIGRATOR_ADDRESSES`,
   `INFI_CL_LP_FEES_HELPER_ADDRESSES`, `INFI_FARMING_DISTRIBUTOR_ADDRESSES` (all in
