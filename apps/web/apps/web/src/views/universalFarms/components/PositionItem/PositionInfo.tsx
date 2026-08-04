@@ -260,7 +260,7 @@ const Earnings: React.FC<{ earningsAmount?: number; earningsBusd?: number }> = (
     earningsAmount > 0 && (
       <Row gap="8px">
         <DetailInfoLabel>
-          {t('CAKE earned')}: {earningsAmount} (~${formatBalance(earningsBusd)})
+          {t('HAWK earned')}: {earningsAmount} (~${formatBalance(earningsBusd)})
         </DetailInfoLabel>
       </Row>
     )
