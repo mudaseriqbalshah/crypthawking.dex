@@ -2,6 +2,17 @@
 
 Running log of anything guessed, stubbed, or blocked. Newest first.
 
+- **2026-08-04 — brand extraction gaps (frontend phase).**
+  `vibe.cryptohawking.com` does not resolve in DNS — no tokens could be extracted
+  from Vibe Hawking; re-extract when it goes live. Parent-site OG image URL 404s
+  and no vector wordmark exists — DEX needs its own OG image + SVG mark (guessed,
+  needs designer confirmation). Tokens marked ⚠ in `packages/brand/BRAND.md`
+  (flat surface hexes, textSubtle/textDisabled, focus ring, 20px card radius,
+  hover/pressed button states, type scale) are fallback values from the design
+  brief, not extracted — guessed, needs designer confirmation. Everything marked
+  ✔ was read from the live compiled CSS / computed styles / screenshots on
+  2026-08-04.
+
 - **RESOLVED 2026-08-03 (same day): Infinity tx swaps now live via UniversalRouter**
   (`0x0180e61b…88d4`) — tri-protocol smoke passed (v2+v3+infinity in 3 on-chain txs).
   Still skipped: MixedQuoter (ctor requires a stable-swap factory — we don't run stable
