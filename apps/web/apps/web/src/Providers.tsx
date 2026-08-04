@@ -77,7 +77,7 @@ export const TestProviders: React.FC<
         <W3WConfigProvider value={false}>
           <HydrationBoundary state={dehydratedState}>
             <Provider store={store}>
-              <NextThemeProvider>
+              <NextThemeProvider defaultTheme="dark">
                 <LanguageProvider>
                   <StyledUIKitProvider>
                     <HistoryManagerProvider>
