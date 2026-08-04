@@ -26,4 +26,7 @@ describe('uriToHttp', () => {
   it('returns empty array for invalid scheme', () => {
     expect(uriToHttp('blah:test')).toEqual([])
   })
+  it('passes through a locally-hosted relative path unchanged', () => {
+    expect(uriToHttp('/cryptohawking.tokenlist.json')).toEqual(['/cryptohawking.tokenlist.json'])
+  })
 })
