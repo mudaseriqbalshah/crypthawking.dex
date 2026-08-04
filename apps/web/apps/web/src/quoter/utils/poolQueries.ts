@@ -214,13 +214,22 @@ export const fetchCandidatePools = async (query: PoolQuery, options: PoolQueryOp
     return []
   }
   const fallbackQuery = async () => {
-    const poolsArray = await Promise.all([
+    // `allSettled`, not `all`: a single protocol leg failing (an RPC hiccup, a protocol with
+    // no pools deployed yet) must not throw away the pools the other legs did find.
+    const poolsArray = await Promise.allSettled([
       options.stableSwap ? queries.getStableSwapPools(query, options) : ([] as Pool[]),
       options.v2Pools ? queries.getV2CandidatePools(query, options) : ([] as Pool[]),
       options.v3Pools ? queries.getV3PoolsWithTicksOnChain(query, options) : ([] as Pool[]),
       options.infinity ? queries.getInfinityCandidatePools(query, options) : ([] as Pool[]),
     ])
-    return poolsArray.flat() as Pool[]
+    return poolsArray.flatMap((r) => {
+      if (r.status === 'fulfilled') {
+        return r.value as Pool[]
+      }
+      // eslint-disable-next-line no-console
+      console.warn('[quoter] candidate pool leg failed', r.reason)
+      return []
+    }) as Pool[]
   }
 
   const defaultQuery = async () => {
@@ -282,7 +291,14 @@ export const fetchCandidatePoolsLite = async (query: PoolQuery, options: PoolQue
       options.v3Pools ? queries.getV3PoolsWithTicksOnChain(query, options) : ([] as Pool[]),
       options.infinity ? queries.getInfinityCandidatePools(query, options) : ([] as Pool[]),
     ])
-    return poolsArray.flatMap((r) => (r.status === 'fulfilled' ? (r.value as Pool[]) : [])) as Pool[]
+    return poolsArray.flatMap((r) => {
+      if (r.status === 'fulfilled') {
+        return r.value as Pool[]
+      }
+      // eslint-disable-next-line no-console
+      console.warn('[quoter] candidate pool leg failed', r.reason)
+      return []
+    }) as Pool[]
   }
 
   const call = createAsyncCallWithFallbacks(defaultQuery, {
