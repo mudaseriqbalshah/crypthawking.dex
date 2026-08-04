@@ -7,6 +7,7 @@ import {
   AutoColumn,
   Button,
   Flex,
+  LogoIcon,
   Modal,
   ModalV2,
   RowBetween,
@@ -24,7 +25,6 @@ import { RangeTag } from 'components/RangeTag'
 import { CHAIN_QUERY_NAME } from 'config/chains'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useCakePrice } from 'hooks/useCakePrice'
-import Image from 'next/image'
 import NextLink from 'next/link'
 import { useCallback, useMemo } from 'react'
 import { type V3Farm } from 'state/farms/types'
@@ -220,19 +220,14 @@ const SingleFarmV3Card: React.FunctionComponent<
                         <>
                           {t('Inactive positions will')}
                           <b> {t('NOT')} </b>
-                          {t('earn CAKE rewards from farm.')}
+                          {t('earn HAWK rewards from farm.')}
                         </>
                       ) : (
                         t('You may add or remove liquidity on the position detail page without unstake')
                       )}
                       <Arrow />
                     </StyledTooltip>
-                    <Image
-                      src="/images/decorations/bulb-bunny.png"
-                      width={135}
-                      height={120}
-                      alt="bulb bunny reminds unstaking"
-                    />
+                    <LogoIcon width="135px" height="120px" />
                   </AtomBox>
                 </AtomBox>
                 <LightCard>

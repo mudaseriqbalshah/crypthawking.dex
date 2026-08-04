@@ -84,7 +84,7 @@ const FarmResult: React.FC<React.PropsWithChildren<FarmInfoProps>> = ({ pickedDa
         <NextLink href="/prediction?chain=bsc">
           <LinkStyle>{t('Win')}</LinkStyle>
         </NextLink>
-        {t('with your CAKE earned.')}
+        {t('with your HAWK earned.')}
       </ListStyle>
     </Flex>,
     { placement: 'top' },

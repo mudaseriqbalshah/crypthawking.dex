@@ -1,8 +1,7 @@
 import { useTheme } from '@pancakeswap/hooks'
 import { useTranslation } from '@pancakeswap/localization'
-import { AtomBox, AutoColumn, Button, Image, Modal, ModalV2, StyledTooltip, Text } from '@pancakeswap/uikit'
+import { AtomBox, AutoColumn, Button, LogoIcon, Modal, ModalV2, StyledTooltip, Text } from '@pancakeswap/uikit'
 import { LightCard } from 'components/Card'
-import { ASSET_CDN } from 'config/constants/endpoints'
 import styled from 'styled-components'
 
 const Arrow = styled.div`
@@ -86,12 +85,7 @@ export const V3StakeModal: React.FC<React.PropsWithChildren<IStakeModalProps>> =
                 )}
                 <Arrow />
               </StyledTooltip>
-              <Image
-                src={`${ASSET_CDN}/web/universalFarms/bulb-bunny.png`}
-                width={135}
-                height={120}
-                alt="bulb bunny reminds unstaking"
-              />
+              <LogoIcon width="135px" height="120px" />
             </AtomBox>
           </AtomBox>
           <LightCard style={{ position: 'relative' }}>{children}</LightCard>

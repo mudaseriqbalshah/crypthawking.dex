@@ -1,25 +1,23 @@
 import { ContextApi } from "@pancakeswap/localization";
 import { FooterLinkType } from "../../../components/Footer/types";
 
+// CryptoHawking testnet: upstream footer linked out to pancakeswap.finance/docs.
+// pancakeswap.finance for nearly every entry (merch store, business partnerships,
+// analytics, IFOs, legacy products) — none of which exist for this fork. Own-domain
+// entries (Trade/Earn) now point at dex.cryptohawking.com; entries with no
+// CryptoHawking equivalent yet (docs, audits, blog, careers, bug bounty, brand
+// assets) are TODO'd — see RISKS.md.
 export const footerLinks: (t: ContextApi["t"]) => FooterLinkType[] = (t) => [
   {
     label: t("Ecosystem"),
     items: [
       {
         label: t("Trade"),
-        href: "https://pancakeswap.finance/swap",
+        href: "https://dex.cryptohawking.com/swap",
       },
       {
         label: t("Earn"),
-        href: "https://pancakeswap.finance/liquidity/pools",
-      },
-      {
-        label: t("Play"),
-        href: "https://pancakeswap.finance/prediction",
-      },
-      {
-        label: t("Merchandise"),
-        href: "https://merch.pancakeswap.finance/",
+        href: "https://dex.cryptohawking.com/liquidity/pools",
       },
     ],
   },
@@ -27,20 +25,13 @@ export const footerLinks: (t: ContextApi["t"]) => FooterLinkType[] = (t) => [
     label: "Business",
     items: [
       {
-        label: t("CAKE Incentives"),
+        label: t("HAWK Incentives"),
+        // TODO(cryptohawking): no CryptoHawking docs site exists yet — see RISKS.md.
         href: "https://docs.pancakeswap.finance/ecosystem-and-partnerships/business-partnerships/syrup-pools-and-farms",
       },
       {
         label: t("Staking Pools"),
-        href: "https://pancakeswap.finance/pools",
-      },
-      {
-        label: t("Token Launches"),
-        href: "https://docs.pancakeswap.finance/ecosystem-and-partnerships/business-partnerships/initial-farm-offerings-ifos",
-      },
-      {
-        label: t("Brand Assets"),
-        href: "https://docs.pancakeswap.finance/ecosystem-and-partnerships/brand",
+        href: "https://dex.cryptohawking.com/pools",
       },
     ],
   },
@@ -48,20 +39,9 @@ export const footerLinks: (t: ContextApi["t"]) => FooterLinkType[] = (t) => [
     label: t("Developers"),
     items: [
       {
-        label: t("Contributing"),
-        href: "https://docs.pancakeswap.finance/developers/contributing",
-      },
-      {
         label: t("Github"),
+        // TODO(cryptohawking): no public CryptoHawking DEX repo/org exists yet — see RISKS.md.
         href: "https://github.com/pancakeswap",
-      },
-      {
-        label: t("Developer Doc"),
-        href: "https://developer.pancakeswap.finance/",
-      },
-      {
-        label: t("Bug Bounty"),
-        href: "https://docs.pancakeswap.finance/developers/bug-bounty",
       },
     ],
   },
@@ -69,24 +49,9 @@ export const footerLinks: (t: ContextApi["t"]) => FooterLinkType[] = (t) => [
     label: t("Support"),
     items: [
       {
-        label: t("Get Help"),
-        href: "https://docs.pancakeswap.finance/contact-us/customer-support",
-      },
-      {
-        label: t("Troubleshooting"),
-        href: "https://docs.pancakeswap.finance/readme/help/troubleshooting",
-      },
-      {
         label: t("Documentation"),
+        // TODO(cryptohawking): no CryptoHawking docs site exists yet — see RISKS.md.
         href: "https://docs.pancakeswap.finance/",
-      },
-      {
-        label: t("Audits"),
-        href: "https://docs.pancakeswap.finance/readme/audits",
-      },
-      {
-        label: t("Legacy products"),
-        href: "https://docs.pancakeswap.finance/products/legacy-products",
       },
     ],
   },
@@ -95,23 +60,12 @@ export const footerLinks: (t: ContextApi["t"]) => FooterLinkType[] = (t) => [
     items: [
       {
         label: t("Tokenomics"),
+        // TODO(cryptohawking): no CryptoHawking docs site exists yet — see RISKS.md.
         href: "https://docs.pancakeswap.finance/governance-and-tokenomics/cake-tokenomics",
       },
       {
-        label: t("CAKE Emission Projection"),
-        href: "https://analytics.pancakeswap.finance/",
-      },
-      {
-        label: t("Blog"),
-        href: "https://blog.pancakeswap.finance/",
-      },
-      {
-        label: t("Careers"),
-        href: "https://docs.pancakeswap.finance/team/become-a-chef",
-      },
-      {
         label: t("Terms Of Service"),
-        href: "https://pancakeswap.finance/terms-of-service",
+        href: "https://dex.cryptohawking.com/terms-of-service",
       },
     ],
   },

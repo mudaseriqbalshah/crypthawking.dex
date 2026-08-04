@@ -21,8 +21,8 @@ export const StyledFlex = styled(FlexGap)`
 export const swapFAQConfig: FAQConfig = (t) => ({
   title: t('Quick start now on How to Swap!'),
   subtitle: t('Need Help?'),
-  imageUrl: getImageUrl('faq_bunny'),
-  alt: 'FAQ bunny',
+  imageUrl: '',
+  alt: 'FAQ',
   docsUrl: 'https://docs.pancakeswap.finance/products/pancakeswap-exchange',
   data: [
     {

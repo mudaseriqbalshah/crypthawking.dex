@@ -377,7 +377,7 @@ function RoutingSettings() {
         {xFeatureEnabled ? (
           <Flex justifyContent="space-between" alignItems="flex-start" mb="24px">
             <Flex flexDirection="column">
-              <Text>PancakeSwap X</Text>
+              <Text>CryptoHawking X</Text>
               <Text fontSize="12px" color="textSubtle" maxWidth={360} mt={10}>
                 When applicable, aggregates liquidity to provide better price, more token options, and gas free swaps.
               </Text>
@@ -396,7 +396,7 @@ function RoutingSettings() {
           <PreTitle mb="24px">{t('Liquidity source')}</PreTitle>
           <Flex justifyContent="space-between" alignItems="center" mb="24px">
             <Flex alignItems="center">
-              <Text>PancakeSwap V3</Text>
+              <Text>CryptoHawking V3</Text>
               <QuestionHelper
                 text={
                   <Flex>
@@ -420,7 +420,7 @@ function RoutingSettings() {
           </Flex>
           <Flex justifyContent="space-between" alignItems="center" mb="24px">
             <Flex alignItems="center">
-              <Text>PancakeSwap V2</Text>
+              <Text>CryptoHawking V2</Text>
               <QuestionHelper
                 text={
                   <Flex flexDirection="column">
@@ -445,7 +445,7 @@ function RoutingSettings() {
           </Flex>
           <Flex justifyContent="space-between" alignItems="center" mb="24px">
             <Flex alignItems="center">
-              <Text>PancakeSwap {t('StableSwap')}</Text>
+              <Text>CryptoHawking {t('StableSwap')}</Text>
               <QuestionHelper
                 text={
                   <Flex flexDirection="column">

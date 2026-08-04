@@ -1,6 +1,6 @@
 import { useDebounce } from '@pancakeswap/hooks'
 import { useTranslation } from '@pancakeswap/localization'
-import { Box, BunnyPlaceholderIcon, Flex, Spinner, Text } from '@pancakeswap/uikit'
+import { Box, Flex, LogoIcon, Spinner, Text } from '@pancakeswap/uikit'
 import { BarChartLoader } from 'components/ChartLoaders'
 import TradingView, { useTradingViewEvent } from 'components/TradingView'
 import { memo, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
@@ -83,7 +83,7 @@ const TradingViewChart = ({ outputSymbol, inputSymbol, isDark, onTwChartSymbol }
     <Box height="100%" width="100%" pt="4px" position="relative">
       {hasNoData && (
         <Flex height="100%" justifyContent="center" alignItems="center" flexDirection="column">
-          <BunnyPlaceholderIcon width="96px" height="96px" />
+          <LogoIcon width="96px" height="96px" />
           <Text bold fontSize="20px" color="textDisabled" mt="16px">
             {t('TradingView chart not available')}
           </Text>

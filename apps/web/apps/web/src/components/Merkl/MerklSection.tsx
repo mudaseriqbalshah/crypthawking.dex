@@ -125,7 +125,7 @@ export function MerklSection({
                   external
                   color="currentColor"
                   style={{ display: 'inline-flex' }}
-                  href={merklLink ?? 'https://merkl.angle.money/?search=PancakeSwap&status=live%2Csoon'}
+                  href={merklLink ?? 'https://merkl.angle.money/?search=CryptoHawking&status=live%2Csoon'}
                 />,
               ]}
             />

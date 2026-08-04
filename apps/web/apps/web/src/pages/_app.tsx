@@ -46,6 +46,7 @@ import { Blocklist, Updaters } from '..'
 import { SEO } from '../../next-seo.config'
 import Providers from '../Providers'
 import Menu, { SharedComponentWithOutMenu } from '../components/Menu'
+import { TestnetBanner } from '../components/TestnetBanner'
 import GlobalStyle from '../style/Global'
 import { NextPageWithLayout } from '../utils/page.types'
 
@@ -101,9 +102,9 @@ function MyApp(props: AppProps<{ initialReduxState: any; dehydratedState: any }>
         />
         <meta
           name="description"
-          content="Cheaper and faster than Uniswap? Discover PancakeSwap, the leading DEX on BNB Smart Chain (BSC) with the best farms in DeFi and a lottery for CAKE."
+          content="Testnet DEX on Base Sepolia — swap, LP and farm valueless test tokens."
         />
-        <meta name="theme-color" content="#1FC7D4" />
+        <meta name="theme-color" content="#A855F7" />
       </Head>
       <DefaultSeo {...SEO} />
       {/* <LoadVConsole /> */}
@@ -165,6 +166,7 @@ const App = ({ Component, pageProps }: AppPropsWithLayout) => {
   return (
     <ProductionErrorBoundary>
       <Suspense>
+        <TestnetBanner />
         <ShowMenu>
           <Layout>
             <Component {...pageProps} />

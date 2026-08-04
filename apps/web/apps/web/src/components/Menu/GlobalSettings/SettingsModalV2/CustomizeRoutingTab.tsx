@@ -75,7 +75,7 @@ export const CustomizeRoutingTab = memo(() => {
         <AtomBox>
           <Flex justifyContent="space-between" alignItems="center" mb="24px">
             <Flex alignItems="center">
-              <Text>PancakeSwap Infinity</Text>
+              <Text>CryptoHawking Infinity</Text>
               <QuestionHelper
                 text={
                   <Flex>
@@ -99,7 +99,7 @@ export const CustomizeRoutingTab = memo(() => {
           </Flex>
           <Flex justifyContent="space-between" alignItems="center" mb="24px">
             <Flex alignItems="center">
-              <Text>PancakeSwap V3</Text>
+              <Text>CryptoHawking V3</Text>
               <QuestionHelper
                 text={
                   <Flex>
@@ -123,7 +123,7 @@ export const CustomizeRoutingTab = memo(() => {
           </Flex>
           <Flex justifyContent="space-between" alignItems="center" mb="24px">
             <Flex alignItems="center">
-              <Text>PancakeSwap V2</Text>
+              <Text>CryptoHawking V2</Text>
               <QuestionHelper
                 text={
                   <Flex flexDirection="column">
@@ -148,7 +148,7 @@ export const CustomizeRoutingTab = memo(() => {
           </Flex>
           <Flex justifyContent="space-between" alignItems="center" mb="24px">
             <Flex alignItems="center">
-              <Text>PancakeSwap {t('StableSwap')}</Text>
+              <Text>CryptoHawking {t('StableSwap')}</Text>
               <QuestionHelper
                 text={
                   <Flex flexDirection="column">

@@ -96,7 +96,7 @@ const MultiChainHarvestModal: React.FC<MultiChainHarvestModalProp> = ({
       toastSuccess(
         `${t('Harvested')}!`,
         <ToastDescriptionWithTx txHash={receipt.transactionHash}>
-          {t('Your %symbol% earnings have been sent to your wallet!', { symbol: 'CAKE' })}
+          {t('Your %symbol% earnings have been sent to your wallet!', { symbol: 'HAWK' })}
         </ToastDescriptionWithTx>,
       )
       handleCancel()

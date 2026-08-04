@@ -30,7 +30,7 @@ export const AggregatePricingModal = ({ children }: AggregatePricingModalProps) 
             <Box mb="16px">
               <Text fontSize="14px" color="text">
                 {t(
-                  'This chart shows aggregated price data from multiple sources. Actual output amounts for a swap request or prices from a specific PancakeSwap pool may differ.',
+                  'This chart shows aggregated price data from multiple sources. Actual output amounts for a swap request or prices from a specific CryptoHawking pool may differ.',
                 )}
               </Text>
             </Box>

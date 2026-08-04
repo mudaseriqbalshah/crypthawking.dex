@@ -114,9 +114,9 @@ export const walletsConfig = <config extends Config = Config, context = unknown>
         // && metaMaskConnector.ready
       },
       connectorId: ConnectorNames.MetaMask,
-      deepLink: 'https://metamask.app.link/dapp/pancakeswap.finance/',
+      deepLink: 'https://metamask.app.link/dapp/dex.cryptohawking.com/',
       qrCode,
-      downloadLink: 'https://metamask.app.link/dapp/pancakeswap.finance/',
+      downloadLink: 'https://metamask.app.link/dapp/dex.cryptohawking.com/',
       MEVSupported: true,
     },
     {
@@ -127,7 +127,7 @@ export const walletsConfig = <config extends Config = Config, context = unknown>
       get installed() {
         return !!getTrustWalletProvider()
       },
-      deepLink: 'https://link.trustwallet.com/open_url?coin_id=20000714&url=https://pancakeswap.finance/',
+      deepLink: 'https://link.trustwallet.com/open_url?coin_id=20000714&url=https://dex.cryptohawking.com/',
       downloadLink: 'https://trustwallet.com/browser-extension',
       guide: {
         desktop: 'https://trustwallet.com/browser-extension',
@@ -146,7 +146,7 @@ export const walletsConfig = <config extends Config = Config, context = unknown>
       },
       downloadLink: 'https://www.okx.com/download',
       deepLink:
-        'https://www.okx.com/download?deeplink=okx%3A%2F%2Fwallet%2Fdapp%2Furl%3FdappUrl%3Dhttps%253A%252F%252Fpancakeswap.finance',
+        'https://www.okx.com/download?deeplink=okx%3A%2F%2Fwallet%2Fdapp%2Furl%3FdappUrl%3Dhttps%253A%252F%252Fdex.cryptohawking.com',
       guide: {
         desktop: 'https://www.okx.com/web3',
         mobile: 'https://www.okx.com/web3',
@@ -333,9 +333,14 @@ const docLangCodeMapping: Record<string, string> = {
   'pt-br': 'portuguese-brazilian',
 }
 
+// TODO(cryptohawking): no CryptoHawking docs site exists yet — these still point at
+// PancakeSwap's upstream docs so the "wallet guide" link keeps working for testnet users.
+// Repoint to a docs.cryptohawking.com (or dex.cryptohawking.com/docs) equivalent once one
+// exists. Logged in RISKS.md.
 export const getDocLink = (code: string) =>
   docLangCodeMapping[code]
     ? `https://docs.pancakeswap.finance/v/${docLangCodeMapping[code]}/get-started/wallet-guide`
     : `https://docs.pancakeswap.finance/get-started/wallet-guide`
 
+// TODO(cryptohawking): same as getDocLink above — no CryptoHawking MEV-guard doc exists yet.
 export const mevDocLink = 'https://docs.pancakeswap.finance/trading-tools/pancakeswap-mev-guard'

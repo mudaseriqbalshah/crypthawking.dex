@@ -1,12 +1,12 @@
 {
-  "short_name": "PancakeSwap",
-  "name": "PancakeSwap",
-  "description": "Farm CAKE with Pancake LP Tokens",
-  "homepage_url": "https://pancakeswap.finance",
+  "short_name": "CryptoHawking DEX",
+  "name": "CryptoHawking DEX",
+  "description": "Testnet DEX on Base Sepolia — swap, LP and farm valueless test tokens.",
+  "homepage_url": "https://dex.cryptohawking.com",
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#1FC7D4",
-  "background_color": "#ffffff",
+  "theme_color": "#A855F7",
+  "background_color": "#0A0A0F",
   "orientation": "portrait",
   "icons": [
     {

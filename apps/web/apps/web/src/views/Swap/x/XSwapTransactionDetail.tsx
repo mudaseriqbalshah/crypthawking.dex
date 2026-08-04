@@ -40,7 +40,7 @@ export function XSwapTransactionDetailModal({ order }: { order: GetXOrderReceipt
   )
 
   return (
-    <Modal title={t('PancakeSwap X Order')}>
+    <Modal title={t('CryptoHawking X Order')}>
       <Column justifyContent="center" textAlign="center" gap="24px">
         <Column justifyContent="center" textAlign="center" gap="12px">
           <Flex justifyContent="center">

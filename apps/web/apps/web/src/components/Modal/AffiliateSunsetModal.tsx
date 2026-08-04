@@ -17,11 +17,11 @@ export function AffiliateSunsetModal() {
     <DisclaimerModal
       bodyMaxWidth={['100%', '100%', '100%', '740px']}
       bodyMaxHeight="80vh"
-      modalHeader={t('Important Update: Closure of the PancakeSwap Affiliate Program')}
+      modalHeader={t('Important Update: Closure of the CryptoHawking Affiliate Program')}
       header={
         <>
           <Text mt="1.5rem">
-            {t(`The PancakeSwap Affiliate Program will officially close on %time%`, {
+            {t(`The CryptoHawking Affiliate Program will officially close on %time%`, {
               time: 'December 31, 2024',
             })}
           </Text>
@@ -50,7 +50,7 @@ export function AffiliateSunsetModal() {
             )}
           </Text>
           <Text mt="1.5rem">
-            {t('Thank you for your understanding and being a valued PancakeSwap community member.')}
+            {t('Thank you for your understanding and being a valued CryptoHawking community member.')}
           </Text>
         </>
       }

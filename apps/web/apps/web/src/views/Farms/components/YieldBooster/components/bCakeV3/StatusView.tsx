@@ -12,7 +12,7 @@ const BoosterTooltip = () => {
   return (
     <>
       {t(
-        `Boost multiplier is calculated based on the staking conditions from both Farms and veCAKE. Numbers will be automatically updated upon user actions.`,
+        `Boost multiplier is calculated based on the staking conditions from both Farms and veHAWK. Numbers will be automatically updated upon user actions.`,
       )}
     </>
   )
@@ -148,7 +148,7 @@ const useBCakeMessage = (
       return t('Sync veCAKE to activate yield booster')
     }
     if (shouldUpdate) return t('Click to update and increase your boosts.')
-    if (isLockEnd) return t('Renew your CAKE staking to activate yield booster')
+    if (isLockEnd) return t('Renew your HAWK staking to activate yield booster')
     if (isReachedMaxBoostLimit && canBoostedButNot) return t('Unset other boosters to activate')
     if (canBoostedButNot) return t('Yield booster available')
     if (boosted) return t('Active')

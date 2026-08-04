@@ -240,3 +240,73 @@ Running log of anything guessed, stubbed, or blocked. Newest first.
   next stack entry (usually `sans-serif`/system default) — so no blocky Kanit glyphs
   render in practice — but the dead literals should be swept in a follow-up pass for
   cleanliness.
+- **2026-08-04 — Logo mark is a placeholder monogram (Task 13 identity rebrand).** The
+  "CH" circular mark used in `packages/uikit/src/components/Svg/Icons/{Logo,LogoWithText,
+  LogoRound}.tsx`, `public/logo.png`, `public/favicon.ico`, and `public/images/og-hero.png`
+  is a programmatically-generated placeholder (gradient-stroked circle + bold "CH" text),
+  consistent in spirit with the parent site's circular mark
+  (`packages/brand/reference/logo.jpg`) but not a designed asset. Needs a real designer
+  pass before production launch.
+- **2026-08-04 — CryptoHawking docs site does not exist yet (Task 13, `src/config/
+  wallet.ts`).** `getDocLink()` and `mevDocLink` still point at PancakeSwap's upstream
+  docs (`docs.pancakeswap.finance/...`) because there is no `docs.cryptohawking.com` (or
+  equivalent) content to link to. Wallet deeplinks/download links (MetaMask, Trust Wallet,
+  OKX) were repointed to `dex.cryptohawking.com` since that domain is fixed per
+  `CLAUDE.md`, but these two doc links were left with `TODO(cryptohawking)` comments in
+  `wallet.ts` — repoint once a CryptoHawking docs site exists.
+- **2026-08-04 — Ad panel disabled entirely (Task 13 identity rebrand).** The upstream
+  `AdPanel` system (`apps/web/apps/web/src/components/AdPanel/**`, driven by
+  `useAdConfig()` in `config.tsx` and `useAdsConfigs()` in `hooks/useAdsConfig.ts`) is
+  a rotating carousel of PancakeSwap promotional campaigns — "Pancake Gifts", Binance
+  Alpha trading competitions, "Solana PancakeSwap" liquidity, one-click cross-chain swap
+  launches, Springboard, IFOs, PCSX — none of which exist on this Base-Sepolia-only
+  testnet fork. Rather than rebrand copy for campaigns that don't apply here (and that
+  link out to `pancakeswap.finance`/`blog.pancakeswap.finance`), `useAdConfig()` now
+  always returns `[]` and `useAdsConfigs()`'s underlying list is emptied, so the ad
+  carousel renders nothing on `/swap` and `/farms`. This was found because
+  `document.body.innerText.includes('PancakeSwap')` was still `true` after the initial
+  copy sweep — the ad text ("Provide Liquidity on Solana PancakeSwap", "Introducing
+  Pancake Gifts.") is user-facing but lives in a `.ts` config file the `--include='*.tsx'`
+  grep in the brief's step 5 command does not match. Individual `Ads/*.tsx` components
+  (`AdCrossChain`, `AdSolana`, `AdSpringboard`, `AdIfo`, `AdPCSX`, trading-competition ads)
+  were left as-is since they're now unreachable dead code, not fixed in place — a future
+  cleanup pass could delete them outright.
+- **2026-08-04 — Site footer trimmed and partially TODO'd (Task 13, `packages/uikit/src/
+  widgets/Menu/components/footerConfig.ts`).** The upstream footer (rendered on every
+  page, including `/swap` and `/farms`) was a 5-column, 20-link list where nearly every
+  `href` pointed at `pancakeswap.finance`/`docs.pancakeswap.finance` (merch store,
+  business partnerships, analytics, IFOs, legacy products, careers, bug bounty) and two
+  labels read "CAKE Incentives" / "CAKE Emission Projection". Trimmed to the columns/links
+  that have a real CryptoHawking destination (Trade, Earn, Staking Pools all now point at
+  `dex.cryptohawking.com`) and renamed "CAKE" labels to "HAWK"; the remaining entries
+  (Github, Documentation, Tokenomics) have no CryptoHawking equivalent yet and were left
+  pointing at the PancakeSwap upstream with a `TODO(cryptohawking)` comment — repoint once
+  a CryptoHawking docs site / public repo exists. Also fixed `src/components/Menu/
+  index.tsx`'s `buyCakeLabel`/`buyCakeLink` (was "Buy CAKE" linking to the real BSC-mainnet
+  CAKE token, chainId 56 — completely wrong for this fork); now "Buy HAWK" linking to the
+  deployed Base Sepolia HAWK token (`0x2843bABb7557CD51e8007F8D2a960457c734C570`,
+  chainId 84532) via `packages/deployments/base-sepolia.json`.
+- **2026-08-04 — Pre-existing (not Task 13) dev-only error overlay: "Unrecognized list
+  URL protocol."** During Task 13 visual verification, `/swap` intermittently showed a
+  Next.js dev-mode error overlay (`packages/token-lists/dist/react.mjs:456`) thrown while
+  resolving `CRYPTOHAWKING_DEFAULT = '/cryptohawking.tokenlist.json'` in
+  `apps/web/apps/web/src/config/constants/lists.ts` — a relative path, which the
+  `@uniswap/token-lists`-derived resolver doesn't recognize as a URL protocol (it wants
+  `http(s)://`/`ipfs://`). `git log` confirms `lists.ts` was last touched in commit
+  `211ef3d` ("local token list, pancake backends cut, home->swap"), a prior task in this
+  pipeline — Task 13 did not modify this file. The underlying page content still renders
+  correctly underneath the overlay (confirmed via `innerText` extraction), and the overlay
+  is dev-only (Next.js error boundary), so it does not block Task 13's verification gates,
+  but the root cause (an absolute URL is required) should be fixed in a follow-up — likely
+  by resolving `CRYPTOHAWKING_DEFAULT` to an absolute URL (e.g. `${window.location.origin}/
+  cryptohawking.tokenlist.json` or a build-time absolute path) before Task 13's screenshots
+  were taken, the overlay was dismissed programmatically for a clean capture.
+- **2026-08-04 — Flaky "CAKE" text observed once on `/farms` during Task 13 verification,
+  not reproduced on retry.** One `document.body.innerText.includes('CAKE')` check
+  returned `true` immediately after an APR-data fetch returned HTTP 504 (`https://
+  stingray-app-m57u6.ondigitalocean.app/cached/pools/apr/.../base-sepolia/farms-lp`);
+  the very next check (and the saved screenshot) returned `false` with all farm rows
+  showing correct "HAWK-ETH LP" etc. naming. Most likely a transient loading-skeleton
+  placeholder tied to the failed APR fetch, not a static copy leak — grep confirms no
+  remaining "CAKE" string literals in `src/views/Farms/**`. Flagged here in case it
+  reproduces consistently once live APR data is available post-deploy.

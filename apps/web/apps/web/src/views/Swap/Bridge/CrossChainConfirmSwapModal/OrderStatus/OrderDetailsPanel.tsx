@@ -230,7 +230,7 @@ const BridgeFeesBreakdown = ({
                     <Text bold display="inline-block">
                       {t('X')}
                     </Text>
-                    : {t('No fee when trading through PancakeSwap X (subject to change).')}
+                    : {t('No fee when trading through CryptoHawking X (subject to change).')}
                   </Text>
                 </>
               }

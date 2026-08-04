@@ -36,7 +36,7 @@ const Menu = (props) => {
   const [perpConfirmed] = useUserNotUsCitizenAcknowledgement(IdType.PERPETUALS)
 
   const [onPerpConfirmModalPresent] = useModal(
-    <USCitizenConfirmModal title={t('PancakeSwap Perpetuals')} id={IdType.PERPETUALS} href={perpUrl} />,
+    <USCitizenConfirmModal title={t('CryptoHawking Perpetuals')} id={IdType.PERPETUALS} href={perpUrl} />,
     true,
     false,
     'perpConfirmModal',
@@ -109,8 +109,8 @@ const Menu = (props) => {
       activeItem={activeMenuItem?.href}
       activeSubItem={activeSubMenuItem?.href}
       activeSubItemChildItem={activeSubChildMenuItem?.href}
-      buyCakeLabel={t('Buy CAKE')}
-      buyCakeLink="/swap?outputCurrency=0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82&chainId=56"
+      buyCakeLabel={t('Buy HAWK')}
+      buyCakeLink="/swap?outputCurrency=0x2843bABb7557CD51e8007F8D2a960457c734C570&chainId=84532"
       {...props}
     />
   )

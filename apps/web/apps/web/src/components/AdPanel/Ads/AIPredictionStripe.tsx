@@ -65,7 +65,7 @@ export const AIPrediction = ({
     <Flex mr={['6px']} alignItems="center" flexWrap="wrap">
       <Box>
         <Text bold as="span" color="white" fontSize={['12px', '12px', '12px']}>
-          {t("PancakeSwap's AI-Prediction Market is now live on Arbitrum.")}
+          {t("CryptoHawking's AI-Prediction Market is now live on Arbitrum.")}
         </Text>
         <Text bold as="span" color="#FFE238" fontSize={['12px', '12px', '12px']}>
           {t('60,000 ARB')}{' '}
