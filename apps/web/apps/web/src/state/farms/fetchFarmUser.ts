@@ -1,4 +1,4 @@
-import { ChainId } from '@pancakeswap/chains'
+import { getMasterChefChainId, isClassicMasterChefV1Chain, isOwnMasterChefChain } from '@pancakeswap/farms'
 import BigNumber from 'bignumber.js'
 import { masterChefV2ABI } from 'config/abi/masterchefV2'
 import { crossFarmingVaultABI } from 'config/abi/crossFarmingVault'
@@ -7,17 +7,49 @@ import { SerializedFarmConfig, SerializedFarmPublicData } from 'config/constants
 import { farmFetcher } from 'state/farms'
 import { getMasterChefV2Address, getCrossFarmingVaultAddress } from 'utils/addressHelpers'
 import { getCrossFarmingReceiverContract } from 'utils/contractHelpers'
-import { verifyBscNetwork } from 'utils/verifyBscNetwork'
 import { publicClient } from 'utils/wagmi'
 import { Address, erc20Abi } from 'viem'
+
+/**
+ * These reads used to branch on `verifyBscNetwork(chainId)` — "is this BSC or BSC_TESTNET"
+ * — which is really a proxy for "does this chain hold its own MasterChef, or are its farms
+ * cross-farmed onto BSC". `isOwnMasterChefChain` asks that question directly, and because
+ * `masterChefAddresses` contains exactly {BSC, BSC_TESTNET, BASE_SEPOLIA}, it returns the
+ * identical answer as `verifyBscNetwork` for every pre-existing chain — the only chain whose
+ * behavior changes is our own. Cross-farming chains (ETHEREUM, ARBITRUM_ONE, …) keep the
+ * crossFarmingVault + cProxy path untouched.
+ */
+
+/**
+ * MasterChef v1's `userInfo` mapping returns (amount, rewardDebt); MasterChefV2's returns
+ * (amount, rewardDebt, boostMultiplier). Decoding the 2-field return with the 3-field ABI
+ * fails, so v1 chains need their own. `pendingCake(uint256,address) -> uint256` is byte
+ * identical between v1 and V2 (verified against contracts/farms/contracts/MasterChef.sol),
+ * so the earnings read below can keep using `masterChefV2ABI`.
+ */
+const masterChefV1UserInfoABI = [
+  {
+    inputs: [
+      { internalType: 'uint256', name: '', type: 'uint256' },
+      { internalType: 'address', name: '', type: 'address' },
+    ],
+    name: 'userInfo',
+    outputs: [
+      { internalType: 'uint256', name: 'amount', type: 'uint256' },
+      { internalType: 'uint256', name: 'rewardDebt', type: 'uint256' },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+] as const
 
 export const fetchFarmUserAllowances = async (
   account: Address,
   farmsToFetch: SerializedFarmPublicData[],
   chainId: number,
 ) => {
-  const isBscNetwork = verifyBscNetwork(chainId)
-  const masterChefAddress = isBscNetwork ? getMasterChefV2Address(chainId)! : getCrossFarmingVaultAddress(chainId)
+  const hasOwnChef = isOwnMasterChefChain(chainId)
+  const masterChefAddress = hasOwnChef ? getMasterChefV2Address(chainId)! : getCrossFarmingVaultAddress(chainId)
 
   const lpAllowances = await publicClient({ chainId }).multicall({
     contracts: farmsToFetch.map((farm) => {
@@ -93,13 +125,19 @@ export const fetchFarmUserStakedBalances = async (
   farmsToFetch: SerializedFarmConfig[],
   chainId: number,
 ) => {
-  const isBscNetwork = verifyBscNetwork(chainId)
-  const masterChefAddress = isBscNetwork ? getMasterChefV2Address(chainId)! : getCrossFarmingVaultAddress(chainId)
+  const hasOwnChef = isOwnMasterChefChain(chainId)
+  const masterChefAddress = hasOwnChef ? getMasterChefV2Address(chainId)! : getCrossFarmingVaultAddress(chainId)
+  // eslint-disable-next-line no-nested-ternary
+  const userInfoAbi = hasOwnChef
+    ? isClassicMasterChefV1Chain(chainId)
+      ? masterChefV1UserInfoABI
+      : masterChefV2ABI
+    : crossFarmingVaultABI
 
   const rawStakedBalances = await publicClient({ chainId }).multicall({
     contracts: farmsToFetch.map((farm) => {
       return {
-        abi: isBscNetwork ? masterChefV2ABI : crossFarmingVaultABI,
+        abi: userInfoAbi,
         address: masterChefAddress,
         functionName: 'userInfo',
         args: [BigInt(farm.vaultPid ?? farm.pid), account as Address] as const,
@@ -234,9 +272,11 @@ export const fetchFarmUserEarnings = async (
   farmsToFetch: SerializedFarmConfig[],
   chainId: number,
 ) => {
-  const isBscNetwork = verifyBscNetwork(chainId)
-  const multiCallChainId = farmFetcher.isTestnet(chainId) ? ChainId.BSC_TESTNET : ChainId.BSC
-  const userAddress = isBscNetwork ? account : await fetchCProxyAddress(account, multiCallChainId)
+  const hasOwnChef = isOwnMasterChefChain(chainId)
+  const multiCallChainId = getMasterChefChainId(chainId, farmFetcher.isTestnet(chainId))
+  // Self-hosted chef chains stake directly, so rewards accrue to the user's own address.
+  // Only cross-farmed chains route through a cProxy on BSC.
+  const userAddress = hasOwnChef ? account : await fetchCProxyAddress(account, multiCallChainId)
   const masterChefAddress = getMasterChefV2Address(multiCallChainId)!
 
   const rawEarnings = await publicClient({ chainId: multiCallChainId }).multicall({

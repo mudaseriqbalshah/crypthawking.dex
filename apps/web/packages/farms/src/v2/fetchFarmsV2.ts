@@ -3,7 +3,12 @@ import { CurrencyParams, getCurrencyKey, getCurrencyListUsdPrice } from '@pancak
 import { BIG_ONE, BIG_TWO, BIG_ZERO } from '@pancakeswap/utils/bigNumber'
 import BN from 'bignumber.js'
 import { Address, PublicClient, formatUnits } from 'viem'
-import { FarmV2SupportedChainId, supportedChainIdV2 } from '../const'
+import {
+  FarmV2SupportedChainId,
+  getMasterChefChainId,
+  isClassicMasterChefV1Chain,
+  supportedChainIdV2,
+} from '../const'
 import { SerializedFarmConfig, isStableFarm } from '../types'
 import { getFarmLpTokenPrice, getFarmsPrices } from './farmPrices'
 import { fetchPublicFarmsData } from './fetchPublicFarmData'
@@ -83,12 +88,11 @@ export const getTokenAmount = (balance: BN, decimals: number) => {
  * MasterChef 0x30cCe7f0eE4314Ca353cC16ecaAcb2E2aE4E6963, source
  * contracts/farms/contracts/MasterChef.sol) is a v1 chef, verified on-chain.
  *
- * Everything below branches on this list only; chains absent from it (BSC, BSC_TESTNET,
- * ETHEREUM, ARBITRUM_ONE, GOERLI, MONAD_TESTNET) take the byte-identical original path.
+ * Everything below branches on `isClassicMasterChefV1Chain` (../const) only; chains absent
+ * from that list (BSC, BSC_TESTNET, ETHEREUM, ARBITRUM_ONE, GOERLI, MONAD_TESTNET) take the
+ * byte-identical original path.
  */
-const CLASSIC_MASTERCHEF_V1_CHAIN_IDS: number[] = [ChainId.BASE_SEPOLIA]
-
-const isClassicMasterChefV1 = (chainId: number) => CLASSIC_MASTERCHEF_V1_CHAIN_IDS.includes(chainId)
+const isClassicMasterChefV1 = isClassicMasterChefV1Chain
 
 const masterChefV1Abi = [
   {
@@ -139,6 +143,7 @@ export type FetchFarmsParams = {
 export async function farmV2FetchFarms({
   farms,
   provider,
+  isTestnet,
   masterChefAddress,
   chainId,
   totalRegularAllocPoint,
@@ -150,9 +155,15 @@ export async function farmV2FetchFarms({
 
   const stableFarms = farms.filter(isStableFarm)
 
+  // The chef may live on a different chain than the LP tokens: cross-farming chains keep
+  // reading it on BSC exactly as before. Only the chef reads are re-pointed — the stable-LP
+  // and public LP reads below stay on `chainId`, which is where those contracts actually are
+  // (unchanged from upstream).
+  const masterChefChainId = getMasterChefChainId(chainId, isTestnet)
+
   const [stableFarmsResults, poolInfos, lpDataResults] = await Promise.all([
     fetchStableFarmData(stableFarms, chainId, provider),
-    fetchMasterChefData(farms, chainId, provider, masterChefAddress),
+    fetchMasterChefData(farms, masterChefChainId, provider, masterChefAddress),
     fetchPublicFarmsData(farms, chainId, provider, masterChefAddress),
   ])
 

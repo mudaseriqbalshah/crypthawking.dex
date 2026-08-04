@@ -185,7 +185,9 @@ export const useFarmsV3 = ({ mockApr = false, boosterLiquidityX = {} }: UseFarms
                 tvls[checksummedAddress] = {
                   token0: formatUnits(tokenRes.result as bigint, f.token.decimals),
                   token1: formatUnits(quoteRes.result as bigint, f.quoteToken.decimals),
-                  updatedAt: new Date(),
+                  // LPTvl.updatedAt is a string (the API branch gets it pre-serialised);
+                  // the untyped `any` from that branch's .json() hid the mismatch there.
+                  updatedAt: new Date().toISOString(),
                 }
               }
             })

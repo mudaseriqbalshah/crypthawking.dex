@@ -16,6 +16,11 @@ export default {
   masterChef: {
     [ChainId.BSC_TESTNET]: '0xB4A466911556e39210a6bB2FaECBB59E4eB7E43d',
     [ChainId.BSC]: '0xa5f8C5Dbd5F286960b9d90548680aE5ebFf07652',
+    // Our own classic MasterChef (v1 ABI), packages/deployments/base-sepolia.json.
+    // Needed here — not just in packages/farms' masterChefAddresses — because
+    // getMasterChefV2Address/getMasterChefContract drive the user-data reads and the
+    // deposit/withdraw/harvest write path.
+    [ChainId.BASE_SEPOLIA]: '0x30cCe7f0eE4314Ca353cC16ecaAcb2E2aE4E6963',
   },
   masterChefV3: masterChefV3Addresses,
   masterChefV1: {

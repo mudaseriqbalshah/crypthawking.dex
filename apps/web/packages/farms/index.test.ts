@@ -34,8 +34,13 @@ test('exports', () => {
       "supportedChainIdV4",
       "createFarmFetcher",
       "createFarmFetcherV3",
+      "fetchBaseSepoliaHawkUsdPrice",
       "fetchCommonTokenUSDValue",
       "fetchTokenUSDValues",
+      "getMasterChefChainId",
+      "isClassicMasterChefV1Chain",
+      "isOwnMasterChefChain",
+      "masterChefAddresses",
       "masterChefV3Addresses",
     ]
   `)
