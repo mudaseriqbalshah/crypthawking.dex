@@ -15,22 +15,5 @@ export const middleware = stackMiddlewares([
 ])
 
 export const config = {
-  matcher: [
-    '/',
-    '/swap',
-    '/liquidity',
-    '/pools',
-    '/cake-staking',
-    '/gauges-voting',
-    '/farms',
-    '/add',
-    '/ifo',
-    '/remove',
-    '/prediction',
-    '/find',
-    '/limit-orders',
-    '/lottery',
-    '/nfts',
-    '/info/:path*',
-  ],
+  matcher: ['/', '/swap', '/liquidity', '/pools', '/farms', '/add', '/remove', '/find'],
 }

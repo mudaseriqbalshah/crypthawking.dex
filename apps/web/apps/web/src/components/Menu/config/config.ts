@@ -1,23 +1,14 @@
 import { ContextApi } from '@pancakeswap/localization'
-import { SUPPORTED_CHAIN_IDS as POOL_SUPPORTED_CHAINS } from '@pancakeswap/pools'
-import { SUPPORTED_CHAIN_IDS as POSITION_MANAGERS_SUPPORTED_CHAINS } from '@pancakeswap/position-managers'
-import { SUPPORTED_CHAIN_IDS as PREDICTION_SUPPORTED_CHAINS } from '@pancakeswap/prediction'
 import {
-  BridgeIcon,
   DropdownMenuItems,
-  DropdownMenuItemType,
   EarnFillIcon,
   EarnIcon,
-  GameIcon,
   MenuItemsType,
-  MoreIcon,
-  TradeIcon,
-  TradeFilledIcon,
   SwapFillIcon,
   SwapIcon,
+  WaterIcon,
 } from '@pancakeswap/uikit'
-import { SUPPORT_FARMS, SUPPORT_ONLY_BSC } from 'config/constants/supportChains'
-import { getPerpetualUrl } from 'utils/getPerpetualUrl'
+import { SUPPORT_FARMS } from 'config/constants/supportChains'
 
 export type ConfigMenuDropDownItemsType = DropdownMenuItems & {
   hideSubNav?: boolean
@@ -49,7 +40,7 @@ const config: (
   isDark: boolean,
   languageCode?: string,
   chainId?: number,
-) => ConfigMenuItemsType[] = (t, isDark, languageCode, chainId) =>
+) => ConfigMenuItemsType[] = (t, _isDark, _languageCode, chainId) =>
   [
     {
       label: t('Trade'),
@@ -62,23 +53,7 @@ const config: (
           label: t('Swap'),
           href: '/swap',
         },
-        {
-          label: t('Buy Crypto'),
-          href: '/buy-crypto',
-        },
       ].map((item) => addMenuItemSupported(item, chainId)),
-    },
-    {
-      label: t('Perps'),
-      icon: TradeIcon,
-      fillIcon: TradeFilledIcon,
-      href: getPerpetualUrl({
-        chainId,
-        languageCode,
-        isDark,
-      }),
-      hideSubNav: true,
-      confirmModalId: 'perpConfirmModal',
     },
     {
       label: t('Earn'),
@@ -89,145 +64,36 @@ const config: (
       supportChainIds: SUPPORT_FARMS,
       overrideSubNavItems: [
         {
-          label: t('Farm / Liquidity'),
-          href: '/liquidity/pools',
+          label: t('Farms'),
+          href: '/farms',
           supportChainIds: SUPPORT_FARMS,
         },
         {
-          label: t('Position Manager'),
-          href: '/position-managers',
-          supportChainIds: POSITION_MANAGERS_SUPPORTED_CHAINS,
-        },
-        {
-          label: t('veCake Redeem'),
-          href: '/cake-staking/redeem',
-          supportChainIds: POOL_SUPPORTED_CHAINS,
-        },
-        {
-          label: t('Syrup Pools'),
-          href: '/pools',
-          supportChainIds: POOL_SUPPORTED_CHAINS,
+          label: t('Liquidity'),
+          href: '/liquidity/positions',
+          supportChainIds: SUPPORT_FARMS,
         },
       ].map((item) => addMenuItemSupported(item, chainId)),
       items: [
         {
-          label: t('Farm / Liquidity'),
-          href: '/liquidity/pools',
-          matchHrefs: ['/liquidity/positions', '/farms'],
+          label: t('Farms'),
+          href: '/farms',
+          matchHrefs: ['/farms'],
           supportChainIds: SUPPORT_FARMS,
         },
         {
-          label: t('Position Manager'),
-          href: '/position-managers',
-          supportChainIds: POSITION_MANAGERS_SUPPORTED_CHAINS,
-        },
-        {
-          label: t('Staking'),
-          items: [
-            {
-              label: t('veCake Redeem'),
-              href: '/cake-staking/redeem',
-              supportChainIds: POOL_SUPPORTED_CHAINS,
-            },
-            {
-              label: t('Syrup Pools'),
-              href: '/pools',
-              supportChainIds: POOL_SUPPORTED_CHAINS,
-            },
-          ].map((item) => addMenuItemSupported(item, chainId)),
+          label: t('Liquidity'),
+          href: '/liquidity/positions',
+          matchHrefs: ['/liquidity/pools', '/liquidity/positions'],
+          supportChainIds: SUPPORT_FARMS,
         },
       ].map((item) => addMenuItemSupported(item, chainId)),
     },
     {
-      label: t('Bridge'),
-      href: '/bridge',
-      icon: BridgeIcon,
-      type: DropdownMenuItemType.EXTERNAL_LINK,
-      image: '/images/decorations/pe2.png',
-      showItemsOnMobile: false,
-    },
-    {
-      label: t('Play'),
-      icon: GameIcon,
-      href: '/prediction',
-      overrideSubNavItems: [
-        {
-          label: t('Prediction'),
-          href: '/prediction',
-        },
-        {
-          label: t('Lottery'),
-          href: '/lottery',
-        },
-      ],
-      items: [
-        {
-          label: t('Springboard'),
-          href: 'https://springboard.pancakeswap.finance',
-          type: DropdownMenuItemType.EXTERNAL_LINK,
-        },
-        {
-          label: t('Prediction'),
-          href: '/prediction',
-          image: '/images/decorations/prediction.png',
-          supportChainIds: PREDICTION_SUPPORTED_CHAINS,
-        },
-        {
-          label: t('Lottery'),
-          href: '/lottery',
-          image: '/images/decorations/lottery.png',
-        },
-      ].map((item) => addMenuItemSupported(item, chainId)),
-    },
-    {
-      label: '',
-      href: '/info',
-      icon: MoreIcon,
+      label: t('Faucet'),
+      icon: WaterIcon,
+      href: '/faucet',
       hideSubNav: true,
-      items: [
-        {
-          label: t('Info'),
-          href: '/info/v3',
-        },
-        {
-          label: t('Burn Dashboard'),
-          href: '/burn-dashboard',
-        },
-        {
-          label: t('IFO'),
-          href: '/ifo',
-          image: '/images/ifos/ifo-bunny.png',
-          overrideSubNavItems: [
-            {
-              label: t('Latest'),
-              href: '/ifo',
-            },
-            {
-              label: t('Finished'),
-              href: '/ifo/history',
-            },
-          ],
-        },
-        {
-          label: t('Voting'),
-          image: '/images/voting/voting-bunny.png',
-          href: '/voting',
-          supportChainIds: SUPPORT_ONLY_BSC,
-        },
-        {
-          type: DropdownMenuItemType.DIVIDER,
-        },
-        {
-          label: t('Blog'),
-          href: 'https://blog.pancakeswap.finance',
-          type: DropdownMenuItemType.EXTERNAL_LINK,
-        },
-        {
-          label: t('Docs'),
-          href: 'https://docs.pancakeswap.finance',
-          type: DropdownMenuItemType.EXTERNAL_LINK,
-        },
-      ].map((item) => addMenuItemSupported(item, chainId)),
     },
   ].map((item) => addMenuItemSupported(item, chainId))
 
