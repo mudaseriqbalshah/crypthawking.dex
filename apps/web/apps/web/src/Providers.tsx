@@ -4,6 +4,7 @@ import { DialogProvider, ModalProvider, UIKitProvider, dark, light } from '@panc
 import { Store } from '@reduxjs/toolkit'
 import { HydrationBoundary, QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { HistoryManagerProvider } from 'contexts/HistoryContext'
+import { privyEnabled } from 'contexts/Privy/enabled'
 import { FirebaseAuthProvider } from 'contexts/Privy/firebase'
 import { PrivyProvider } from 'contexts/Privy/privy'
 import { WagmiWithPrivyProvider } from 'contexts/Privy/provider'
@@ -34,26 +35,44 @@ const Providers: React.FC<
 > = ({ children, store, dehydratedState }) => {
   const wagmiConfig = useMemo(() => createWagmiConfig(), [])
 
+  const appTree = (
+    <W3WConfigProvider value={isInBinance()}>
+      <HydrationBoundary state={dehydratedState}>
+        <Provider store={store}>
+          <NextThemeProvider defaultTheme="dark">
+            <LanguageProvider>
+              <StyledUIKitProvider>
+                <HistoryManagerProvider>
+                  <ModalProvider portalProvider={DialogProvider}>{children}</ModalProvider>
+                </HistoryManagerProvider>
+              </StyledUIKitProvider>
+            </LanguageProvider>
+          </NextThemeProvider>
+        </Provider>
+      </HydrationBoundary>
+    </W3WConfigProvider>
+  )
+
+  // CryptoHawking: social login is opt-in. Without NEXT_PUBLIC_PRIVY_APP_ID we mount neither
+  // FirebaseAuthProvider nor the Privy provider tree, and use wagmi's own WagmiProvider — a
+  // Privy provider pointed at an app id it cannot resolve throws in the production build and
+  // takes the whole client render down. See contexts/Privy/enabled.ts.
+  if (!privyEnabled) {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <WagmiProvider reconnectOnMount={false} config={wagmiConfig}>
+          {appTree}
+        </WagmiProvider>
+      </QueryClientProvider>
+    )
+  }
+
   return (
     <FirebaseAuthProvider>
       <PrivyProvider>
         <QueryClientProvider client={queryClient}>
           <WagmiWithPrivyProvider reconnectOnMount={false} config={wagmiConfig}>
-            <W3WConfigProvider value={isInBinance()}>
-              <HydrationBoundary state={dehydratedState}>
-                <Provider store={store}>
-                  <NextThemeProvider defaultTheme="dark">
-                    <LanguageProvider>
-                      <StyledUIKitProvider>
-                        <HistoryManagerProvider>
-                          <ModalProvider portalProvider={DialogProvider}>{children}</ModalProvider>
-                        </HistoryManagerProvider>
-                      </StyledUIKitProvider>
-                    </LanguageProvider>
-                  </NextThemeProvider>
-                </Provider>
-              </HydrationBoundary>
-            </W3WConfigProvider>
+            {appTree}
           </WagmiWithPrivyProvider>
         </QueryClientProvider>
       </PrivyProvider>

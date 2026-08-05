@@ -1,8 +1,8 @@
-import { usePrivy } from '@privy-io/react-auth'
+import { useSafePrivy } from '../contexts/Privy/hooks/useSafePrivy'
 import { useEffect, useState } from 'react'
 
 function useConnectedViaEmbeddedWallet() {
-  const { authenticated } = usePrivy()
+  const { authenticated } = useSafePrivy()
   return authenticated
 }
 

@@ -5,7 +5,7 @@ import { NextPageWithLayout } from 'utils/page.types'
 import { CHAIN_IDS } from 'utils/wagmi'
 import SwapLayout from 'views/Swap/SwapLayout'
 import SwapSimplify from 'views/SwapSimplify'
-import { useWallets } from '@privy-io/react-auth'
+import { useSafeWallets } from 'contexts/Privy/hooks/useSafePrivy'
 
 const StyledSkeleton = styled(Skeleton)`
   background: ${({ theme }) => theme.colors.backgroundBubblegum};
@@ -43,7 +43,7 @@ const SwapFallback = () => {
 
 const View = () => {
   const { isMobile } = useMatchBreakpoints()
-  const { wallets } = useWallets()
+  const { wallets } = useSafeWallets()
   console.info(wallets, 'wallets')
   return (
     <SwapLayout>

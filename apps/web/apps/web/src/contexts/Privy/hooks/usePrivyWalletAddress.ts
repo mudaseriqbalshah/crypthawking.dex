@@ -1,5 +1,4 @@
-import { usePrivy } from '@privy-io/react-auth'
-import { useSmartWallets } from '@privy-io/react-auth/smart-wallets'
+import { useSafePrivy, useSafeSmartWallets } from './useSafePrivy'
 import { useEffect, useState } from 'react'
 import { Address } from 'viem'
 import { useAccount, useConnectors } from 'wagmi'
@@ -11,8 +10,8 @@ import { useEmbeddedSmartAccountConnectorV2 } from './usePrivySmartAccountConnec
  */
 export const usePrivyWalletAddress = () => {
   const { address: wagmiAddress, connector } = useAccount()
-  const { client: smartWalletClient } = useSmartWallets()
-  const { ready, authenticated, user } = usePrivy()
+  const { client: smartWalletClient } = useSafeSmartWallets()
+  const { ready, authenticated, user } = useSafePrivy()
   const connectors = useConnectors()
   const { isSmartWalletReady, isSettingUp } = useEmbeddedSmartAccountConnectorV2()
 

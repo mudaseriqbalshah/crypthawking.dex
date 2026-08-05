@@ -14,6 +14,7 @@ import { usePrivySocialLoginAtom, useSocialLoginProviderAtom } from './atom'
 import { loginWithTelegramViaScript } from './telegramLogin'
 
 import { firebaseApp } from './constants'
+import { privyEnabled } from './enabled'
 
 // Define the context type
 interface AuthContextType {
@@ -326,10 +327,26 @@ export function FirebaseAuthProvider({ children }: AuthProviderProps) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
+// Inert context used when social login is disabled and no provider is mounted.
+const INERT_AUTH: AuthContextType = {
+  token: undefined,
+  getToken: async () => undefined,
+  isLoading: false,
+  loginWithGoogle: async () => undefined,
+  loginWithX: async () => undefined,
+  loginWithDiscord: async () => undefined,
+  loginWithTelegram: async () => undefined,
+  signOutAndClearUserStates: () => undefined,
+}
+
 // Custom hook to use the auth context
 export function useFirebaseAuth() {
   const context = useContext(AuthContext)
   if (context === undefined) {
+    // CryptoHawking: with social login disabled the FirebaseAuthProvider is never mounted,
+    // but consumers such as useAuth() run on every page. Return an inert context instead of
+    // throwing, which would crash the app at hydration.
+    if (!privyEnabled) return INERT_AUTH
     throw new Error('useAuth must be used within an AuthProvider')
   }
   return context

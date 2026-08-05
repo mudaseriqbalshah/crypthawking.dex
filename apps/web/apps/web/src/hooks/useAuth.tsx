@@ -1,6 +1,6 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { WalletConnectorNotFoundError, WalletSwitchChainError } from '@pancakeswap/ui-wallets'
-import { usePrivy } from '@privy-io/react-auth'
+import { useSafePrivy } from '../contexts/Privy/hooks/useSafePrivy'
 import { CHAIN_QUERY_NAME } from 'config/chains'
 import { ConnectorNames } from 'config/wallet'
 import { useAtom } from 'jotai'
@@ -22,7 +22,7 @@ const useAuth = () => {
   const [, setQueryChainId] = useAtom(queryChainIdAtom)
   const { t } = useTranslation()
   const router = useRouter()
-  const { logout: privyLogout, ready, authenticated } = usePrivy()
+  const { logout: privyLogout, ready, authenticated } = useSafePrivy()
   const { signOutAndClearUserStates } = useFirebaseAuth()
 
   const login = useCallback(
