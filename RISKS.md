@@ -464,3 +464,26 @@ Running log of anything guessed, stubbed, or blocked. Newest first.
   placeholder tied to the failed APR fetch, not a static copy leak — grep confirms no
   remaining "CAKE" string literals in `src/views/Farms/**`. Flagged here in case it
   reproduces consistently once live APR data is available post-deploy.
+- **2026-08-05 — Asset hygiene sweep of `apps/web/apps/web/public/`.** Deleted PancakeSquad
+  NFT art, IFO bunny art, NFT-market art, `collections/` (pancake-squad avatar/banners +
+  `team bg/storm.png`), the migration bunnies, `bunny-santa.svg`, and
+  `tc-easter-bunnies.png` / `tc-fantoken-bunnies.png` after confirming (via `grep` +
+  transitive import trace from `src/pages/**`) that the only referencing code lives in
+  `src/views/{PancakeSquad,Ifos,Nft,Migration,Profile,ProfileCreation,TradingCompetition,
+  AffiliatesProgram}` and none of those views are imported by anything under `src/pages`
+  — i.e. they are unreachable dead code on this fork's trimmed route set (swap/liquidity/
+  pools/farms/faucet/cake-staking/home only). Kept (still reachable, do not delete without
+  a code change first): `web3-notification-bunny.png` (lazy-loaded `views/Notifications`
+  is pulled in globally by `components/Menu` → `pages/_app.tsx`) and
+  `pancake-3d-spinner-v2.gif` (backs the shared `packages/uikit` `Spinner` component used
+  throughout the routed Swap/PoolDetail/IncreaseLiquidity trees). Left untouched as
+  out-of-scope-for-this-sweep / unsure: `images/ido/*` (third-party partner logos, not
+  PancakeSwap brand art, also orphaned via `views/Idos`), and the generic
+  cake-themed decorative assets (`cake.svg`, `burnt-cake.png`, `cakeGrey.png`, `pan-bg*.svg`,
+  etc.) — these are a rebrand-copy concern (out of scope: code/CAKE→HAWK renaming is
+  explicitly a separate, code-touching task per `CLAUDE.md`), not a license/asset-hygiene
+  one. Did not touch `images/wallets/*` (separate, still-referenced legacy path from an
+  older UI) — new `/web/wallets/*` and `/web/chains/84532.png` were added instead per the
+  live 404 report, matching the `${ASSET_CDN}/web/...` paths actually read by
+  `src/config/wallet.ts`, `src/components/Logo/ChainLogo.tsx`, etc. (`NEXT_PUBLIC_ASSET_CDN`
+  is unset, so these resolve same-origin to `public/web/...`).
