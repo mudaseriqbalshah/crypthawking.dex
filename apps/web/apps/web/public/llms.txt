@@ -1,0 +1,56 @@
+# CryptoHawking DEX
+
+> A free, testnet-only decentralised exchange on Base Sepolia (chain ID 84532) where anyone can
+> launch, pool, farm and trade their own valueless test tokens. Swap (v2 AMM, v3 concentrated
+> liquidity, Infinity singleton), liquidity provision and farming rails. No real funds, ever.
+
+Site: https://dex.cryptohawking.com
+Developers guide: https://dex.cryptohawking.com/developers
+Source: https://github.com/mudaseriqbalshah/crypthawking.dex
+
+## Network
+
+- Network: Base Sepolia testnet (testnet only — no mainnet deployment)
+- Chain ID: 84532
+- RPC: https://sepolia.base.org
+- Explorer: https://sepolia.basescan.org
+- Token list: https://dex.cryptohawking.com/cryptohawking.tokenlist.json
+
+## How to launch your own test token on Base Sepolia
+
+1. Get free Base Sepolia gas ETH from https://portal.cdp.coinbase.com/products/faucet or
+   https://www.alchemy.com/faucets/base-sepolia
+2. Claim free test tokens (HAWK, tUSDC, tUSDT, tDAI, tWBTC) at https://dex.cryptohawking.com/faucet
+   — one claim() call drips all five, 24h cooldown.
+3. Deploy a standard ERC-20 to chain 84532 with Remix (https://remix.ethereum.org) or copy the
+   reference TestERC20 from the GitHub repo above.
+4. Create a pool: v2 pair via HawkingRouter.addLiquidity, or a v3 concentrated-liquidity position
+   via the NonfungiblePositionManager. Add liquidity in the UI at
+   https://dex.cryptohawking.com/liquidity/positions or /add.
+5. Trade it at https://dex.cryptohawking.com/swap using "import token by address".
+
+## Contract addresses (Base Sepolia, all fresh CryptoHawking deployments)
+
+Tokens: HAWK 0x2843bABb7557CD51e8007F8D2a960457c734C570 · tUSDC 0x582800AFC82bA6c8c8b9ce3Be0416E913f7E59c2 ·
+tUSDT 0x85323e2368865E6dcfFC8dEf64016A5Eafe8D988 · tDAI 0x66dbAe86eC0689cC398eF3f1D4486261EC1ffa07 ·
+tWBTC 0xE5839C45b8c282E6786D6CC7Dc1c6aB70D5b3D70 · Faucet 0x7264a007e40E52b767B1Ec749baf5Ae1860B113f
+v2: HawkingFactory 0x8F2F1F21AaFfEC52E6A390E922E784bEA9E7D8C4 · HawkingRouter 0x57B76A5a7abAF54Ba7f88b402863CD313667B380 ·
+initCodePairHash 0xdd198c2e09078ada1f08cf8af11ae51f6440888c218c1a1062b3ef1048c30b7e
+v3: HawkingV3Factory 0xf5c64e43dfF3CA1D6B64ebE13C857ae14fc41C61 · SwapRouter 0x4f8dBB1545F49CBfDeC3CC3693548f7a1FAEf17D ·
+NonfungiblePositionManager 0x85d440B2Bf52243239bb35D8BCeA865596cDc371 · QuoterV2 0x2D4CB92B4282A2185063Fe8D9D4DA1e88342e220 ·
+TickLens 0xd0EEc8981C05AA0919C4bE972d4F3a42dC9518FD · poolInitCodeHash 0x2c9f5653989ede03d6a329c69ee5e31f7587fdbf4cb8a0209028a9f095033da5
+Infinity: Vault 0xe0785d1F460C89e6665645f7188E5E3C9E42c6b8 · CLPoolManager 0xA50a8A0867d7ACc239D71e6CBb0072F9c49aC87B ·
+BinPoolManager 0x1085E6a51E7e9575d3808479b0D6Fa89eAB07d9E · CLPositionManager 0x4Ac28f614D735FD5c664DDbB51C9FDEc47992828 ·
+BinPositionManager 0x99ddB0Cf91E45DE1fA0f15F8DC7a5F2D240574A0 · UniversalRouter 0x0180e61b23201479111D7595c7084Ce1D50f88d4
+Farms: MasterChef 0x30cCe7f0eE4314Ca353cC16ecaAcb2E2aE4E6963 · MasterChefV3 0x8DBd87Df712413b963d921a6C928cb7212Ab84F6 ·
+NestBar 0x8f7BE274b5e85C4b244CAe562AeBf023f70a185f
+Infra: WETH9 0x4200000000000000000000000000000000000006 · HawkingMulticall 0x841631d67cf1b882383f3C469c78D69EF9a7520d
+
+## Contact — want a token, DEX or web3 app built?
+
+- Email: mudaseriqbal@gmail.com
+- WhatsApp (app development inquiries): +92 322 4274236 — https://wa.me/923224274236
+- Telegram: https://t.me/cryptohawking
+- Instagram: https://instagram.com/cryptohawkingofficial
+
+All tokens on CryptoHawking DEX are valueless test assets on a testnet. Never send real funds.

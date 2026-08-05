@@ -4,6 +4,7 @@ import {
   EarnFillIcon,
   EarnIcon,
   MenuItemsType,
+  SmartContractIcon,
   SwapFillIcon,
   SwapIcon,
   WaterIcon,
@@ -93,6 +94,12 @@ const config: (
       label: t('Faucet'),
       icon: WaterIcon,
       href: '/faucet',
+      hideSubNav: true,
+    },
+    {
+      label: t('Developers'),
+      icon: SmartContractIcon,
+      href: '/developers',
       hideSubNav: true,
     },
   ].map((item) => addMenuItemSupported(item, chainId))
