@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { getAddress, hexToBigInt } from 'viem'
 import { useChainId, useConfig, useConnectors, useReconnect } from 'wagmi'
 import { injected } from 'wagmi/connectors'
-import { useSmartWallets } from '@privy-io/react-auth/smart-wallets'
+import { useSafeSmartWallets } from './useSafePrivy'
 
 /**
  * Registers a smart account connector in wagmi for the Privy embedded smart wallet.
@@ -18,7 +18,7 @@ export const useEmbeddedSmartAccountConnectorV2 = () => {
   const connectors = useConnectors()
   const config = useConfig()
   const id = useChainId()
-  const { client: isReady, getClientForChain } = useSmartWallets()
+  const { client: isReady, getClientForChain } = useSafeSmartWallets()
   const { reconnect } = useReconnect()
 
   // Add state management to track smart wallet ready status

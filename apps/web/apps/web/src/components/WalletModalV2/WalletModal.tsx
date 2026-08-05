@@ -17,7 +17,7 @@ import { RecentTransactions } from 'components/App/Transactions/TransactionsModa
 import { useTheme } from '@pancakeswap/hooks'
 import { useMenuTab, WalletView } from 'components/Menu/UserMenu/providers/MenuTabProvider'
 import { TabsComponent } from 'components/Menu/UserMenu/WalletModal'
-import { usePrivy } from '@privy-io/react-auth'
+import { useSafePrivy } from 'contexts/Privy/hooks/useSafePrivy'
 import { ASSET_CDN } from 'config/constants/endpoints'
 import { useAddressBalance } from 'hooks/useAddressBalance'
 import { useRouter } from 'next/router'
@@ -135,7 +135,7 @@ export const WalletContent = ({
   const { isMobile } = useMatchBreakpoints()
   const { viewState, setViewState, goBack, setSendEntry } = useWalletModalV2ViewState()
   const { theme } = useTheme()
-  const { authenticated, ready, user, createWallet, setWalletRecovery, enrollInMfa } = usePrivy()
+  const { authenticated, ready, user, createWallet, setWalletRecovery, enrollInMfa } = useSafePrivy()
 
   // Fetch balances using the hook we created
   const { balances, isLoading, totalBalanceUsd } = useAddressBalance(account, {

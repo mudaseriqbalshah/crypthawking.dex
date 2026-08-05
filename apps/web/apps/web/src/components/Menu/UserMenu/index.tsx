@@ -1,6 +1,6 @@
 import { useTranslation } from '@pancakeswap/localization'
 import { Box, UserMenu as UIKitUserMenu, useMatchBreakpoints, UserMenuVariant } from '@pancakeswap/uikit'
-import { usePrivy } from '@privy-io/react-auth'
+import { useSafePrivy } from 'contexts/Privy/hooks/useSafePrivy'
 import ConnectWalletButton from 'components/ConnectWalletButton'
 import Trans from 'components/Trans'
 import { WalletContent, WalletModalV2 } from 'components/WalletModalV2'
@@ -69,7 +69,7 @@ const ClickablePopover = styled.div<{ isOpen: boolean }>`
 const UserMenu = () => {
   const { t } = useTranslation()
   const { address: account, connector } = useAccount()
-  const { ready, authenticated, user } = usePrivy()
+  const { ready, authenticated, user } = useSafePrivy()
 
   // Use new Privy wallet address hook to prevent flickering
   const { address: privyAddress, isLoading: isPrivyAddressLoading, addressType } = usePrivyWalletAddress()
