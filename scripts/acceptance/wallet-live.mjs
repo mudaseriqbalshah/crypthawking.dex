@@ -20,7 +20,7 @@
  *   npx playwright install chromium
  *   PW_DIR=/tmp/pw node scripts/acceptance/wallet-live.mjs connect swap faucet
  *
- * Flows: connect | swap | faucet | farm | probe   (default: all but probe)
+ * Flows: connect | swap | faucet | farm | netscan | probe   (default: connect/swap/faucet/farm)
  */
 import { readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
@@ -138,7 +138,7 @@ const PROVIDER_SRC = `
 `
 
 // ---------------------------------------------------------------- node RPC bridge
-const state = { txs: [], calls: [], errors: [] }
+const state = { txs: [], calls: [], errors: [], requests: [] }
 
 async function rpc(method, paramsJson) {
   const params = JSON.parse(paramsJson || '[]')
@@ -197,6 +197,9 @@ async function newPage(context) {
   page.on('console', (m) => {
     if (m.type() === 'error') state.errors.push(`console: ${m.text().slice(0, 200)}`)
   })
+  // Every outbound request, so a run can assert on third-party dependencies
+  // (see the `netscan` flow — no *.pancakeswap.* call may leave this fork).
+  page.on('request', (r) => state.requests.push(r.url()))
   return page
 }
 
@@ -612,6 +615,57 @@ async function flowFarm(page) {
   return { clicked: target.text, txs: state.txs.slice(before) }
 }
 
+/**
+ * Connected-state third-party dependency scan. Walks the surfaces that pull remote
+ * balances/prices (swap panel, token-select modal, wallet modal) and reports every
+ * request that left for a pancakeswap host. Expected result on 84532: none.
+ */
+async function flowNetscan(page) {
+  log('\n[netscan] connected-state third-party requests')
+  const TOKENS = JSON.parse(readFileSync(path.join(REPO, 'packages/deployments/base-sepolia.json'), 'utf8')).tokens
+  await page.goto(`${BASE}/swap?inputCurrency=${TOKENS.tUSDC}&outputCurrency=${TOKENS.tUSDT}`, {
+    waitUntil: 'domcontentloaded',
+    timeout: 90000,
+  })
+  await page.waitForTimeout(12000)
+
+  // token-select modal → useAllTokenBalances
+  await page
+    .locator('.open-currency-select-button')
+    .first()
+    .click({ timeout: 15000 })
+    .catch(() => log('    (token select button not clickable)'))
+  await page.waitForTimeout(6000)
+  await page.keyboard.press('Escape')
+  await page.waitForTimeout(1500)
+
+  // wallet modal → useAddressBalance. The header chip is a styled div, so click its
+  // centre with a real mouse event rather than a locator on the truncated label.
+  const chip = await page.evaluate((t) => {
+    const want = `0x...${t}`.toLowerCase()
+    const hits = [...document.querySelectorAll('button, div, span')].filter((e) =>
+      (e.textContent || '').trim().toLowerCase().includes(want),
+    )
+    // innermost match that is still a real, visible box
+    const hit = hits.reverse().find((e) => {
+      const r = e.getBoundingClientRect()
+      return r.width > 40 && r.height > 10
+    })
+    if (!hit) return null
+    const r = hit.getBoundingClientRect()
+    return { x: r.x + r.width / 2, y: r.y + r.height / 2 }
+  }, tail)
+  if (chip) await page.mouse.click(chip.x, chip.y)
+  else log('    (address chip not found)')
+  await page.waitForTimeout(10000)
+
+  const pancake = [...new Set(state.requests.filter((u) => /(^|\.)pancakeswap\./i.test(new URL(u).hostname)))]
+  log(`    total requests: ${state.requests.length}`)
+  log(`    pancakeswap requests: ${pancake.length}`)
+  for (const u of pancake) log(`      ${u}`)
+  return { txs: [], totalRequests: state.requests.length, pancakeRequests: pancake }
+}
+
 /** Dump the swap panel's clickable elements — used to (re)derive selectors. */
 async function flowProbe(page) {
   log(`\n[probe] ${BASE}/swap`)
@@ -670,12 +724,12 @@ async function main() {
       for (const f of flows) {
         if (f === 'connect') continue
         try {
-          const fn = { swap: flowSwap, faucet: flowFaucet, farm: flowFarm, probe: flowProbe }[f]
+          const fn = { swap: flowSwap, faucet: flowFaucet, farm: flowFarm, probe: flowProbe, netscan: flowNetscan }[f]
           if (!fn) continue
           const r = await fn(page)
           for (const t of r.txs || []) t.receipt = await receipt(t.hash)
           results[f] = r
-          const ok = (r.txs || []).some((t) => t.receipt?.status === 'success')
+          const ok = f === 'netscan' ? r.pancakeRequests?.length === 0 : (r.txs || []).some((t) => t.receipt?.status === 'success')
           log(`  ${f}: ${ok ? 'PASS' : 'FAIL'} ${(r.txs || []).map((t) => t.hash).join(', ')}`)
           if (!ok) await shot(page, `fail-${f}`)
         } catch (e) {

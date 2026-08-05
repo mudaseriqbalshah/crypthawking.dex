@@ -12,9 +12,11 @@ import { useCallback, useMemo } from 'react'
 import { calculateGasMargin } from 'utils'
 import { getZkSyncAirDropAddress } from 'utils/addressHelpers'
 import { getGasSponsorship } from 'utils/paymaster'
-import { publicClient } from 'utils/wagmi'
+import { CHAIN_IDS, publicClient } from 'utils/wagmi'
 import { Address, encodeFunctionData } from 'viem'
 import { useAccount, useConfig } from 'wagmi'
+
+const isZksyncSupported = (CHAIN_IDS as number[]).includes(ChainId.ZKSYNC)
 
 interface ZksyncAirDropWhiteListData {
   address: Address
@@ -81,7 +83,10 @@ export const useUserWhiteListData = (enable: boolean) => {
         }
       }
     },
-    enabled: Boolean(account && enable),
+    // The whitelist lives on an upstream host and is only meaningful on zkSync — don't
+    // probe it (with the connected account in the path) from a build that cannot reach
+    // zkSync at all. Unchanged wherever zkSync is a supported chain.
+    enabled: Boolean(account && enable) && isZksyncSupported,
     refetchOnMount: false,
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,

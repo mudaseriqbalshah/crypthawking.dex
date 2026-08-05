@@ -1,9 +1,10 @@
-import { ChainId } from '@pancakeswap/chains'
+import { ChainId, isTestnetChainId } from '@pancakeswap/chains'
 import { ZERO_ADDRESS } from '@pancakeswap/swap-sdk-core'
 import { useQuery } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
 import { useCallback, useMemo } from 'react'
 
+import { useActiveChainId } from 'hooks/useActiveChainId'
 import { useCombinedActiveList } from 'state/lists/hooks'
 import { safeGetAddress } from 'utils/safeGetAddress'
 
@@ -39,7 +40,18 @@ interface UseAddressBalanceOptions {
   enabled?: boolean
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_WALLET_API_BASE_URL || 'https://wallet-api.pancakeswap.com/v1/balances'
+const WALLET_API_BASE_URL_OVERRIDE = process.env.NEXT_PUBLIC_WALLET_API_BASE_URL
+const API_BASE_URL = WALLET_API_BASE_URL_OVERRIDE || 'https://wallet-api.pancakeswap.com/v1/balances'
+
+/**
+ * The upstream wallet API only indexes mainnets, and is cross-origin for any other
+ * deployment, so on a testnet the request can only ever fail (CORS / empty). Skip it and
+ * let the on-chain (wagmi multicall) balance path be the only source there.
+ */
+function isBalanceApiAvailable(chainId?: ChainId | number): boolean {
+  if (WALLET_API_BASE_URL_OVERRIDE) return true
+  return !chainId || !isTestnetChainId(chainId as ChainId)
+}
 
 function isNative(address: string): boolean {
   return address === ZERO_ADDRESS
@@ -51,6 +63,8 @@ function isNative(address: string): boolean {
 export const useAddressBalance = (address?: string, options: UseAddressBalanceOptions = {}) => {
   const { includeSpam = false, onlyWithPrice = false, filterByChainId, enabled = true } = options
   const list = useCombinedActiveList()
+  const { chainId: activeChainId } = useActiveChainId()
+  const apiAvailable = isBalanceApiAvailable(filterByChainId ?? activeChainId)
 
   const isListedToken = useCallback(
     (chainId: ChainId, tokenAddress: string): boolean => {
@@ -61,7 +75,7 @@ export const useAddressBalance = (address?: string, options: UseAddressBalanceOp
 
   // Fetch balances from the API
   const fetchBalances = useCallback(async (): Promise<BalanceData[]> => {
-    if (!address) return []
+    if (!address || !apiAvailable) return []
 
     const response = await fetch(`${API_BASE_URL}/${address}`)
 
@@ -72,7 +86,7 @@ export const useAddressBalance = (address?: string, options: UseAddressBalanceOp
     const data = (await response.json()) || []
 
     return data
-  }, [address])
+  }, [address, apiAvailable])
 
   const {
     data: balances = [],
@@ -82,7 +96,7 @@ export const useAddressBalance = (address?: string, options: UseAddressBalanceOp
   } = useQuery({
     queryKey: ['addressBalances', address],
     queryFn: fetchBalances,
-    enabled: Boolean(address) && enabled,
+    enabled: Boolean(address) && enabled && apiAvailable,
     staleTime: 5 * 60 * 1000, // 5 minutes
     refetchOnWindowFocus: false,
   })

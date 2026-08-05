@@ -77,8 +77,13 @@ export default function CurrencyLogo({ currency, size = '24px', style, src }: Lo
 const basicTokensList = ['USDT', 'USDC', 'DAI', 'WBNB', 'WETH', 'WBTC', 'BNB', 'BUSD']
 
 export const getBasicTokensImage = (token: Currency | undefined) => {
-  if (!token) return ''
+  // CryptoHawking: upstream hardcoded tokens.pancakeswap.finance here. We contact no
+  // PancakeSwap host (spec §6.9), so this resolves only against a configured token image
+  // CDN — same gate as utils/tokenImages. Callers already prepend the token list's own
+  // logoURI, so an empty result just falls through to the next candidate src.
+  const TOKEN_IMAGE_CDN = process.env.NEXT_PUBLIC_TOKEN_IMAGE_CDN || ''
+  if (!token || !TOKEN_IMAGE_CDN) return ''
   return basicTokensList.includes(token?.symbol)
-    ? `https://tokens.pancakeswap.finance/images/symbol/${token?.symbol?.toLowerCase() ?? ''}.png`
+    ? `${TOKEN_IMAGE_CDN}/images/symbol/${token?.symbol?.toLowerCase() ?? ''}.png`
     : ''
 }

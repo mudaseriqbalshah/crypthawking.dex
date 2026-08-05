@@ -1,4 +1,4 @@
-import { ChainId, getLlamaChainName } from '@pancakeswap/chains'
+import { ChainId, getLlamaChainName, isTestnetChainId } from '@pancakeswap/chains'
 import { Currency, Token } from '@pancakeswap/sdk'
 import { gql } from 'graphql-request'
 import { Address, getAddress } from 'viem'
@@ -156,7 +156,7 @@ export const getCommonTokenPricesByWalletApi = createCommonTokenPriceProvider<By
   }),
 )
 
-export const getCommonTokenPrices = withFallback([
+const getCommonTokenPricesWithFallback = withFallback([
   {
     asyncFn: ({ currencyA, currencyB }: ParamsWithFallback) => getCommonTokenPricesByLlma({ currencyA, currencyB }),
     timeout: 3000,
@@ -171,3 +171,18 @@ export const getCommonTokenPrices = withFallback([
       getCommonTokenPricesBySubgraph({ currencyA, currencyB, provider: v3SubgraphProvider }),
   },
 ])
+
+/**
+ * None of the off-chain USD price sources above (defillama, the wallet API, the hosted
+ * subgraphs) index testnets — the wallet API in particular is cross-origin for any
+ * non-upstream deployment and can only fail. Skip them entirely there and return no
+ * prices, which makes the pool providers fall back to their on-chain path
+ * (pools are still returned, priced with tvlUSD 0). Mainnet behaviour is unchanged.
+ */
+export const getCommonTokenPrices = (async (params: ParamsWithFallback) => {
+  const chainId = params?.currencyA?.chainId ?? params?.currencyB?.chainId
+  if (chainId !== undefined && isTestnetChainId(chainId)) {
+    return null
+  }
+  return getCommonTokenPricesWithFallback(params)
+}) as typeof getCommonTokenPricesWithFallback

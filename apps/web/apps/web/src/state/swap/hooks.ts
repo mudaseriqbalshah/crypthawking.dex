@@ -236,7 +236,19 @@ export function useDefaultsFromURLSearch():
     const defaultOutputCurrency =
       CAKE[chainId]?.address ?? STABLE_COIN[chainId]?.address ?? USDC[chainId]?.address ?? USDT[chainId]?.address
 
-    const parsed = queryParametersToSwapState(query, native.symbol, defaultOutputCurrency)
+    // Token selection (and the flip button) rewrite the URL through
+    // `replaceBrowserHistoryMultiple`, i.e. `window.history.replaceState`, which the Next
+    // router never observes — so `router.query` goes stale the moment the user picks a
+    // token. Any later re-run of this effect (e.g. when the bridge route list settles)
+    // would then re-derive the whole swap state from that stale query and silently reset
+    // the side the user did not just pick back to its default. Read the live URL instead;
+    // when the router is in sync the two are identical.
+    const currentQuery: ParsedUrlQuery =
+      typeof window !== 'undefined'
+        ? Object.fromEntries(new URLSearchParams(window.location.search).entries())
+        : query
+
+    const parsed = queryParametersToSwapState(currentQuery, native.symbol, defaultOutputCurrency)
 
     let finalInputCurrencyId = parsed[Field.INPUT].currencyId
     let finalOutputCurrencyId = parsed[Field.OUTPUT].currencyId
