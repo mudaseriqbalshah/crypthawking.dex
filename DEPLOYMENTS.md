@@ -135,3 +135,22 @@ re-runnable). Post-deploy state verified on-chain: HAWK supply 11M (10M deployer
 faucet), 5 drips configured, faucet minter on all 4 test tokens, live `claim()` smoke
 test passed (1000 tUSDC + 0.1 tWBTC + 1000 tUSDT + 1000 tDAI + 100 HAWK received).
 Basescan verification still pending an API key (Blockscout used instead — keyless).
+
+## Frontend — dex.cryptohawking.com (2026-08-05)
+
+Live at https://dex.cryptohawking.com (Cloudflare-proxied). Origin: EC2
+`sgc-ec2` (16.176.106.131, ap-southeast-2), app at `~/cryptohawking-dex`
+(clone of github.com/mudaseriqbalshah/crypthawking.dex, main @ 2845716).
+
+- Runtime: Next.js prod build under PM2 (`cryptohawking-dex`, port 3006,
+  `pm2 save`d), Node 20 via nvm, pnpm 10.13.1 via corepack
+  (`COREPACK_HOME=~/.cache/corepack-dex`; install with `--ignore-scripts`
+  — husky prepare fails in the workspace subdir).
+- nginx: `/etc/nginx/sites-available/dex.cryptohawking.com.conf` →
+  proxy 127.0.0.1:3006; Let's Encrypt origin cert via certbot
+  (expires 2026-11-03, auto-renews). Other sites on the box untouched.
+- Redeploy: `git pull` in `~/cryptohawking-dex`, `nice -n 19 corepack pnpm build`
+  from `apps/web` (NODE_OPTIONS=--max-old-space-size=4096), then
+  `pm2 restart cryptohawking-dex`. Old build keeps serving during rebuild.
+- Verified live 2026-08-05: /swap /farms /faucet all 200; zero requests to
+  pancakeswap or privy hosts; testnet banner present; 0 console errors.
