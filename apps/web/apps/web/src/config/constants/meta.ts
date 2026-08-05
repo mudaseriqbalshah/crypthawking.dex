@@ -34,6 +34,17 @@ const getPathList = memoize((t: ContextApi['t']): PathList => {
       },
       '/pools': { title: t('Pools'), image: '/images/og-hero.png' },
       '/farms': { basePath: true, title: t('Farms'), image: '/images/og-hero.png' },
+      '/faucet': {
+        title: t('Faucet'),
+        description: 'Claim free valueless CryptoHawking test tokens on Base Sepolia.',
+        image: '/images/og-hero.png',
+      },
+      '/developers': {
+        title: 'Developers — Launch your test token',
+        description:
+          'Launch your own test token on Base Sepolia: get free gas, claim test tokens, deploy an ERC-20, create a v2 or v3 liquidity pool and trade it on CryptoHawking DEX. Full contract address registry and contacts.',
+        image: '/images/og-hero.png',
+      },
     },
     defaultTitleSuffix: t('CryptoHawking DEX'),
   }
