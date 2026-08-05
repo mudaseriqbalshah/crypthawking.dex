@@ -2,7 +2,11 @@ import { ChainId, isTestnetChainId } from '@pancakeswap/chains'
 
 import { Address } from './types/common'
 
-const WALLET_API = 'https://wallet-api.pancakeswap.com/v1/prices/list/'
+// Overridable so a fork can point at its own price service; testnet currencies are
+// filtered out of every request below, so no call is made for them at all.
+const WALLET_API =
+  (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_WALLET_API_PRICE_URL) ||
+  'https://wallet-api.pancakeswap.com/v1/prices/list/'
 
 export const zeroAddress = '0x0000000000000000000000000000000000000000' as const
 
@@ -78,9 +82,14 @@ export async function getCurrencyListUsdPrice(
   currencyListParams?: CurrencyParams[],
   options?: RequestInit,
 ): Promise<CurrencyUsdResult> {
+  if (!currencyListParams) {
+    throw new Error(`Invalid request for currency prices, request url: undefined`)
+  }
   const requestUrl = getRequestUrl(currencyListParams)
-  if (!requestUrl || !currencyListParams) {
-    throw new Error(`Invalid request for currency prices, request url: ${requestUrl}`)
+  if (!requestUrl) {
+    // Every requested currency is on a testnet (they are filtered out of the request key),
+    // so there is nothing the price API could answer — don't fire a cross-origin request.
+    return {}
   }
 
   try {

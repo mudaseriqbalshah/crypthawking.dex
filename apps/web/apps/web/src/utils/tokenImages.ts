@@ -21,6 +21,8 @@ export const tokenImageChainNameMapping = {
   [ChainId.OPBNB]: 'opbnb/',
 }
 
+const PANCAKE_HOST = /\/\/([a-z0-9-]+\.)*pancakeswap\.(com|finance)\//i
+
 export const getImageUrlFromToken = (token: Currency) => {
   let address = token?.isNative ? token.wrapped.address : token?.address
   if (token && token.chainId === ChainId.BSC && !token.isNative && isAddressEqual(token.address, zeroAddress)) {
@@ -65,7 +67,11 @@ const _getCurrencyLogoSrcs = (currency: Currency & { logoURI?: string | undefine
   }
   const addr = getCurrencyAddress(currency)
   const pxImage = makeBlockiesUrl(addr)
-  const list = allUrls()?.filter((x) => x)
+  // CryptoHawking: token lists inherited from upstream still carry
+  // tokens.pancakeswap.finance `logoURI`s. We contact no PancakeSwap host (spec §6.9),
+  // so drop those candidates — the remaining ones (list logo, configured CDN, blockies)
+  // still resolve a logo.
+  const list = allUrls()?.filter((x) => x && !PANCAKE_HOST.test(x))
   list.push(pxImage)
   return list
 }
