@@ -14,16 +14,18 @@ export function PrivyProvider({ children }: PropsWithChildren) {
 
   // CryptoHawking: Privy social login is intentionally unconfigured — we do not run a
   // Privy app and must not reuse PancakeSwap's. The provider still mounts (downstream
-  // components call usePrivy unconditionally) but stays unauthenticated. Upstream
-  // console.error'd here; that is expected state for us, not a fault.
+  // components call usePrivy unconditionally) but stays unauthenticated. An empty appId
+  // throws during SSR prerender, so we fall back to a well-formed dummy id: Privy then
+  // initializes but never reaches ready, which keeps social login inert while wagmi
+  // wallet flows work. Replace with a real app id to enable social login (RISKS.md).
 
   // Show wallet UIs only on bridge pages
   const showWalletUIs = router.pathname.includes('/bridge')
 
   return (
     <Provider
-      appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID ?? ''}
-      clientId={process.env.NEXT_PUBLIC_PRIVY_CLIENT_ID ?? ''}
+      appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID || 'clcryptohawking0000dummy0'}
+      clientId={process.env.NEXT_PUBLIC_PRIVY_CLIENT_ID || 'client-dummy-cryptohawking'}
       config={{
         defaultChain: CHAINS[0],
         customAuth: {
