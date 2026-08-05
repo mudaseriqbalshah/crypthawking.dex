@@ -435,3 +435,104 @@ snippet confirms `Reward/Day: 57600.00 HAWK` / `14400.00 HAWK` (was `CAKE`) alon
 none in files touched this follow-up.
 
 Commit: `fix(frontend): remaining CAKE display fallbacks`.
+
+## Wallet-connected UI pass (live) — 2026-08-05
+
+Closes §6.1, the single biggest gap in this report: **"No UI-driven, wallet-connected flow
+was proven."** It is now proven. Every transaction below was produced by clicking the real
+UI on the deployed site — not by a script calling a contract.
+
+- Target: **https://dex.cryptohawking.com** (production build, not `next dev`)
+- Account: deployer `0x8DAFaBcEb8B05629cf1591A32f5fd8A1c0a75e95`, Base Sepolia (84532)
+- Harness: `scripts/acceptance/wallet-live.mjs` (new)
+
+### The patchright wall is gone — plain Playwright injects fine
+
+§6.1 concluded that provider injection was impossible because patchright suppressed
+`page.addInitScript`, CDP `Page.addScriptToEvaluateOnNewDocument`, and (via `page.route`)
+HTML-response rewriting. That conclusion was correct **about patchright** and wrong as a
+general statement.
+
+Under **plain Playwright** (installed in a throwaway dir, not added to any repo
+`package.json`), `context.addInitScript` + `context.exposeFunction` works on the first
+attempt: the page reported `{hasEthereum: true, isMetaMask: true}` before the app mounted,
+so `walletsConfig`'s `installed` getter saw the provider and the wallet modal listed
+Metamask as installed. No variant hunting was needed — the very first injection attempt
+succeeded. **No technical wall remains; the blocker was the automation driver, not the app.**
+
+The provider is a Node-side viem `walletClient` bridged into the page, announced over both
+EIP-6963 (`rdns: io.metamask`) and legacy `window.ethereum`.
+
+### Results
+
+| flow | UI path | tx | result |
+|---|---|---|---|
+| **Connect wallet** | header "Connect Wallet" → modal → Metamask tile | — | ✅ header chip shows `0x...5e95`, balances render |
+| **Swap 0.5 tUSDC → tUSDT** | `/swap`, amount 0.5, **Swap** → **Confirm Swap** | [`0xe99bd084f384147f4e0120c5f31159929869e981436671fd9c5f81b55a8d7abb`](https://sepolia.basescan.org/tx/0xe99bd084f384147f4e0120c5f31159929869e981436671fd9c5f81b55a8d7abb) | ✅ status 1, gasUsed 109,636, `to` = **UniversalRouter** `0x0180e61b…f88d4`. UI quoted 0.5 → 0.496145 tUSDT, price impact <0.01%, and rendered a "Transaction receipt / View on Basescan" toast |
+| **Faucet WETH wrap 0.001** | `/faucet`, amount 0.001, **Wrap ETH** | [`0x240af06d3ceee2a3f9753d051c60ffef59993dd2305a48479ab1e68d27cb1715`](https://sepolia.basescan.org/tx/0x240af06d3ceee2a3f9753d051c60ffef59993dd2305a48479ab1e68d27cb1715) | ✅ status 1, gasUsed 27,766, `to` = WETH9 predeploy `0x4200…0006` |
+| **Farm harvest** | `/farms`, **Harvest** on the staked row | [`0x497b82b911767e53983a3ae25af0a19e48b3b9fb88c612b231396cdd6265518c`](https://sepolia.basescan.org/tx/0x497b82b911767e53983a3ae25af0a19e48b3b9fb88c612b231396cdd6265518c) | ✅ status 1, gasUsed 122,457, `to` = **MasterChefV3** `0x8DBd87Df…84F6` |
+
+No approval step appeared for the swap — the Permit2 allowance granted to the
+UniversalRouter during the Task 15 script pass is still live, so the UI went straight to
+**Swap → Confirm Swap**. The successful UR execute re-validates both init code hashes
+end-to-end through the frontend's own routing, this time from a real click.
+
+### Finding — selecting either swap token resets the other side
+
+Reproduced deterministically on the live site, 4 rounds in a row:
+
+- open the **To** selector and choose tUSDT → the panel becomes **ETH → tUSDT** (the From
+  side snapped back to the ETH default)
+- open the **From** selector and choose tUSDC → the panel becomes **tUSDC → HAWK** (the To
+  side snapped back to the HAWK default)
+
+So an arbitrary pair **cannot be assembled with two modal picks** — one side always
+reverts to its default. The harness works around it by seeding both sides from the URL
+(`/swap?inputCurrency=<addr>&outputCurrency=<addr>`), which resolves correctly to
+`tUSDC → tUSDT` and is the path a shared swap link uses. This is a real usability defect
+on the deployed build and should get its own fix pass; it is not a harness artifact —
+`document.body.innerText` was asserted after every pick, and screenshots were captured.
+
+Note this also explains §3/§6.2's original "no output amount ever appears" symptom being so
+sticky: an operator driving the UI by hand lands on a nonsense pair (e.g. ETH → tUSDT with a
+90% price impact and "Insufficient ETH balance") rather than the pair they selected.
+
+### Other live-site observations
+
+- `https://wallet-api.pancakeswap.com/v1/balances/<account>` is requested from the live
+  origin and fails CORS. Upstream endpoint reached from three places
+  (`apps/web/apps/web/src/hooks/useAddressBalance.ts:42` — overridable via
+  `NEXT_PUBLIC_WALLET_API_BASE_URL`; `packages/price-api-sdk/src/getCurrencyPrice.ts:5`;
+  `packages/smart-router/evm/v3-router/providers/getCommonTokenPrices.ts:155`). Not an
+  address leak, but it is a live `*.pancakeswap.*` dependency on the deployed site.
+- Console still logs `Error: client chain not configured. multicallAddress is required.`
+  and the `nbstream.binance.click` / `bscrpc.com` probes from §3 — unchanged.
+- One request returned **502** mid-run (site briefly unavailable); a retry passed.
+- The wallet session does **not** survive a full page reload — wagmi's autoConnect has no
+  extension storage behind an injected-only provider, so the header falls back to
+  "Connect Wallet". Expected for this harness, not a site defect.
+
+### Harness notes (`scripts/acceptance/wallet-live.mjs`)
+
+Selector lessons worth keeping, all found the hard way against the live DOM:
+
+- The `Swap | TWAP | Limit` **tab** also reads "Swap"; clicking it **resets the form**. The
+  commit button is distinguished by width (tab w=129, commit w=446).
+- Wallet-modal tiles and token rows are styled `<div>`s. A synthetic `el.click()` does not
+  select; a computed row-centre mouse click can land on padding and dismiss the modal via
+  its outside-click handler. Playwright's `locator.click()` on the symbol label is what works.
+- Reading the selected pair by DOM order or geometry is unreliable — it matches the
+  laid-out-but-offscreen language menu (it once reported the From token as "Suomalainen").
+  Parse `document.body.innerText` for `<SYM>\nBase Sepolia` instead.
+- Playwright/viem are deliberately **not** repo dependencies; install them in a scratch dir
+  and pass `PW_DIR`.
+
+The §6.7 concern — "the MasterChef harvest needed a manual gas limit after viem's estimate
+produced OutOfGas" — did **not** reproduce through the UI: the app's own gas handling
+produced a clean 122,457-gas harvest on the first click, exactly as §6.7 predicted it would.
+
+Remaining §6 gaps not closed by this pass: §6.4 (intermittent `CAKE` leak — separately
+addressed by the 2026-08-05 fix-wave above), §6.5 (`next dev` compile times — not
+applicable to the production build tested here), §6.6 (faucet `claim()` cooldown — the
+WETH wrap card was exercised instead, `claim()` is still on the deployer's cooldown), and
+§6.8 (`corepack pnpm` in this sandbox).
