@@ -8,7 +8,6 @@ import { BIG_ZERO } from '@pancakeswap/utils/bigNumber'
 import { getDecimalAmount } from '@pancakeswap/utils/formatBalance'
 import BigNumber from 'bignumber.js'
 import { ToastDescriptionWithTx } from 'components/Toast'
-import { tokenImageChainNameMapping } from 'components/TokenImage'
 import { useActiveChainId } from 'hooks/useActiveChainId'
 import useCatchTxError from 'hooks/useCatchTxError'
 import { useERC20 } from 'hooks/useContract'
@@ -67,7 +66,9 @@ const StakeModalContainer = ({
   )
 
   const tokenImageUrl = useMemo(
-    () => (chainId ? `https://tokens.pancakeswap.finance/images/${tokenImageChainNameMapping[chainId]}` : ''),
+    // CryptoHawking: upstream built this from tokens.pancakeswap.finance. Spec §6.9
+    // forbids that host; our own token art is served same-origin, per chain.
+    () => (chainId ? `/images/tokens/${chainId}/` : ''),
     [chainId],
   )
 

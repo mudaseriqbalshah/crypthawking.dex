@@ -40,20 +40,11 @@ interface NonEvmChain {
   image: string
 }
 
-const NON_EVM_CHAINS: NonEvmChain[] = [
-  {
-    id: 1,
-    name: 'Aptos',
-    link: 'https://aptos.pancakeswap.finance/swap',
-    image: 'https://aptos.pancakeswap.finance/images/apt.png',
-  },
-  {
-    id: 2,
-    name: 'Solana',
-    link: process.env.SOLANA_SWAP_PAGE ?? 'https://solana.pancakeswap.finance/swap',
-    image: 'https://tokens.pancakeswap.finance/images/symbol/sol.png',
-  },
-]
+// CryptoHawking: upstream listed PancakeSwap's own Aptos and Solana deployments here,
+// with logos served from *.pancakeswap.finance. We are a Base Sepolia-only fork with no
+// non-EVM deployment, and spec §6.9 forbids requests to PancakeSwap hosts — so the list
+// is empty and the non-EVM section renders nothing.
+const NON_EVM_CHAINS: NonEvmChain[] = []
 
 export const networkSwitcherModalAtom = atom(false)
 

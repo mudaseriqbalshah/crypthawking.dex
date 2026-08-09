@@ -6,12 +6,12 @@ import { SpinnerProps } from "./types";
 
 const Spinner: React.FC<React.PropsWithChildren<SpinnerProps>> = ({ size = 128 }) => {
   return (
-    <Box width={size} height={size * 1.197} position="relative">
+    <Box width={size} height={size} position="relative">
       <Image
         width={size}
-        height={size * 1.197}
-        src={`${ASSET_CDN}/web/pancake-3d-spinner-v2.gif`}
-        alt="pancake-3d-spinner"
+        height={size}
+        src={`${ASSET_CDN}/web/hawking-spinner.svg`}
+        alt="loading"
       />
     </Box>
   );

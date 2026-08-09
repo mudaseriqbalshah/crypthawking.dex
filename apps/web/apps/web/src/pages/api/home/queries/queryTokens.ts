@@ -84,7 +84,9 @@ export const queryTokens = cacheByLRU(async () => {
   const topTokens = tokens.map((x, i) => {
     const price = prices[i]
     const addr = checksumAddress(x.id)
-    const logo = tokenMap[`${x.chainId}-${addr}`]?.logoURI || `https://tokens.pancakeswap.finance/images/${addr}.png`
+    // CryptoHawking: no PancakeSwap-hosted fallback (spec §6.9); the client renders a
+    // blockies identicon when a token has no list logo.
+    const logo = tokenMap[`${x.chainId}-${addr}`]?.logoURI || ''
     return {
       ...x,
       id: addr,

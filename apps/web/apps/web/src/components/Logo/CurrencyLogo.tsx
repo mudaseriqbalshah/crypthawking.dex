@@ -9,6 +9,11 @@ import { useMemo } from 'react'
 import { styled } from 'styled-components'
 import getTokenLogoURL from '../../utils/getTokenLogoURL'
 
+// CryptoHawking: spec §6.9 — zero requests to *.pancakeswap.* hosts. Declared locally
+// rather than imported from utils/tokenImages to avoid deepening the existing import
+// cycle between these two modules.
+const PANCAKE_HOST = /\/\/([a-z0-9-]+\.)*pancakeswap\.(com|finance)\//i
+
 const StyledLogo = styled(TokenLogo)<{ size: string }>`
   width: ${({ size }) => size};
   height: ${({ size }) => size};
@@ -40,17 +45,23 @@ export default function CurrencyLogo({ currency, size = '24px', style, src }: Lo
   const basicTokenImage = getBasicTokensImage(currency)
 
   const srcs: string[] = useMemo(() => {
+    // CryptoHawking: whatever the candidate chain resolves to, never emit a
+    // *.pancakeswap.* URL (spec §6.9). Inherited token lists still carry those
+    // logoURIs; the local art / blockies candidates below still resolve a logo.
+    const strip = (urls: (string | undefined)[]) =>
+      urls.filter((url): url is string => Boolean(url) && !PANCAKE_HOST.test(url as string))
+
     if (currency?.isNative) return []
 
     if (currency?.isToken) {
       const tokenLogoURL = getTokenLogoURL(currency)
 
       if (currency instanceof WrappedTokenInfo) {
-        if (!tokenLogoURL) return [...imageUrls, ...uriLocations, basicTokenImage]
-        return [...imageUrls, ...uriLocations, tokenLogoURL, basicTokenImage]
+        if (!tokenLogoURL) return strip([...imageUrls, ...uriLocations, basicTokenImage])
+        return strip([...imageUrls, ...uriLocations, tokenLogoURL, basicTokenImage])
       }
-      if (!tokenLogoURL) return [...imageUrls, basicTokenImage]
-      return [...imageUrls, tokenLogoURL, basicTokenImage]
+      if (!tokenLogoURL) return strip([...imageUrls, basicTokenImage])
+      return strip([...imageUrls, tokenLogoURL, basicTokenImage])
     }
     return []
   }, [currency, uriLocations])

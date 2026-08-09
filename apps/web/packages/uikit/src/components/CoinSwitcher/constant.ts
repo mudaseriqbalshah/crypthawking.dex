@@ -1,4 +1,6 @@
-const PATH = `https://cdn.pancakeswap.com/sequnce-assets/`;
+// CryptoHawking: spec §6.9 — no requests to *.pancakeswap.* hosts. Same-origin base;
+// the BNB/CAKE flip animation is upstream BSC art we do not ship.
+const PATH = `${process.env.NEXT_PUBLIC_ASSET_CDN || ""}/sequnce-assets/`;
 
 export const BNB2CAKE_PATH = `${PATH}bnb2cake/bnb2cake-`;
 export const BNB2CAKE_COUNTS = 31;

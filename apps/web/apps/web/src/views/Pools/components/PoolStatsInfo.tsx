@@ -10,6 +10,7 @@ import { memo, useMemo } from 'react'
 import { useCurrentBlock } from 'state/block/hooks'
 import { getTokenInfoPath } from 'state/info/utils'
 import { getBlockExploreLink } from 'utils'
+import { getLocalTokenImage } from 'utils/tokenImages'
 import { getPoolBlockInfo } from 'views/Pools/helpers'
 import MaxStakeRow from './MaxStakeRow'
 import { AprInfo } from './Stat'
@@ -133,7 +134,7 @@ const PoolStatsInfo: React.FC<React.PropsWithChildren<ExpandedFooterProps>> = ({
             tokenAddress={tokenAddress}
             tokenSymbol={earningToken.symbol}
             tokenDecimals={earningToken.decimals}
-            tokenLogo={`https://tokens.pancakeswap.finance/images/${tokenAddress}.png`}
+            tokenLogo={getLocalTokenImage(earningToken.chainId, tokenAddress)}
           />
         </Flex>
       )}
