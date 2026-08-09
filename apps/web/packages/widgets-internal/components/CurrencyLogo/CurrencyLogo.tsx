@@ -10,6 +10,9 @@ import { ChainLogo } from "./ChainLogo";
 import { CurrencyInfo } from "./types";
 import { getCurrencyLogoUrlsByInfo } from "./utils";
 
+// CryptoHawking: spec §6.9 — zero requests to *.pancakeswap.* hosts.
+const PANCAKE_HOST = /\/\/([a-z0-9-]+\.)*pancakeswap\.(com|finance)\//i;
+
 const StyledLogo = styled(TokenLogo)<{ size: string }>`
   width: ${({ size }) => size};
   height: ${({ size }) => size};
@@ -74,7 +77,10 @@ export function CurrencyLogo({
       const logoUrls = getCurrencyLogoUrlsByInfo(currency, { useTrustWallet: useTrustWalletUrl });
 
       if (currency?.logoURI) {
-        return [...uriLocations, ...logoUrls];
+        // CryptoHawking: inherited token lists can still carry *.pancakeswap.* logoURIs.
+        // Spec §6.9 forbids requests to those hosts, so drop them and fall through to our
+        // own local art / the identicon fallback.
+        return [...uriLocations.filter((url) => !PANCAKE_HOST.test(url)), ...logoUrls];
       }
       return [...logoUrls];
     }

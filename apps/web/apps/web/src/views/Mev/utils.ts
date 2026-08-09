@@ -1,6 +1,9 @@
 import { RPCResponse } from './types'
 
-const AD_ASSETS_URL = 'https://assets.pancakeswap.finance/web/mev'
+// CryptoHawking: spec §6.9 — no requests to *.pancakeswap.* hosts. This view is BSC-only
+// upstream marketing and is not routed on our fork; the base URL is same-origin so the
+// asset paths cannot reach PancakeSwap.
+const AD_ASSETS_URL = (process.env.NEXT_PUBLIC_ASSET_CDN || '') + '/web/mev'
 export const getImageUrl = (asset: string) => `${AD_ASSETS_URL}/${asset}`
 
 export const fetchRPCData = async (method: 'stat_txCount' | 'stat_walletCount'): Promise<number> => {

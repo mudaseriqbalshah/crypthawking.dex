@@ -487,3 +487,46 @@ Running log of anything guessed, stubbed, or blocked. Newest first.
   live 404 report, matching the `${ASSET_CDN}/web/...` paths actually read by
   `src/config/wallet.ts`, `src/components/Logo/ChainLogo.tsx`, etc. (`NEXT_PUBLIC_ASSET_CDN`
   is unset, so these resolve same-origin to `public/web/...`).
+
+- **2026-08-09 — PancakeSwap-hosted images purged (token art, wallet intro, spinner).**
+  The live site was still loading `tokens.pancakeswap.finance/images/symbol/{weth,usdc}.png`
+  (token-select modal) and `cdn.pancakeswap.com/wallets/wallet_intro.png` (Connect Wallet
+  modal) despite the earlier host-blanking pass. Root causes, both missed before:
+  (1) `apps/web/src/config/constants/tokenLists/pancake-default.tokenlist.json` is
+  `import`ed and merged into every token map by `state/lists/hooks.ts` regardless of the
+  active list URLs, and it contains **chainId 84532** entries (WETH `0x4200…0006`, Circle
+  USDC `0x036CbD…F7e`) whose `logoURI` pointed at `tokens.pancakeswap.finance`; the
+  `PANCAKE_HOST` filter added earlier only guarded `getCurrencyLogoSrcs`, not
+  `getImageUrlsFromToken` / `components/Logo/CurrencyLogo.tsx`. (2) `packages/ui-wallets`
+  hardcoded the `cdn.pancakeswap.com` intro art in three places.
+  Fixes: pancake `logoURI`s stripped from both bundled lists; the host filter now also
+  runs in `getImageUrlsFromToken` and in `components/Logo/CurrencyLogo.tsx`; our own
+  Base Sepolia monogram art is served from `public/images/tokens/84532/<lowercase-addr>.png`
+  and resolved by the new `getLocalTokenImage()` in `utils/tokenImages.ts`; the missing
+  `/web/**` assets from the 2026-08-05 note above (`native/84532.png`,
+  `chains/square/84532.svg`, `chains/svg/84532.svg`, `universalFarms/empty_list_bunny.png`,
+  `wallets/wallet_intro.png`, `wallets/world_lock.png`, `wallets/social-login/*`) are now
+  generated brand art in `public/web/**`; the shared `uikit` `Spinner` and the V3Info
+  loader use a new local `/web/hawking-spinner.svg` instead of `pancake-3d-spinner-v2.gif`.
+
+  Guesses / things to watch:
+  - **Do NOT put a relative `logoURI` in `public/cryptohawking.tokenlist.json`.** The list
+    is validated by `packages/token-lists/react/getTokenList.ts` with **Ajv 6**, whose
+    built-in `uri` format rejects `/images/...`; `getTokenList` then *silently filters out
+    every failing token*, which would empty our only token list. Verified experimentally.
+    That is why our token art is wired through code (address→path), not through the list.
+  - The monogram icons are placeholders, not designed marks (flat `#1A1A24` disc,
+    `#A855F7` ring, white initials). They should be replaced by real brand art.
+  - `getLocalTokenImage()` hardcodes the eight Base Sepolia addresses. Any newly deployed
+    token needs both a PNG under `public/images/tokens/84532/` and an entry in that set,
+    otherwise it falls through to the blockies identicon (still local, just generic).
+  - Unreachable-on-this-fork views were fixed opportunistically rather than deleted
+    (`views/Pottery`, `views/Mev`, `views/CakeStaking/.../LockInfo`, `uikit CoinSwitcher`)
+    — their pancake image URLs are gone but they now point at same-origin paths that do
+    not all exist. Harmless while the views stay unrouted.
+  - `swapSound.ts` streamed `cdn.pancakeswap.com/swap.mp3`; it is now gated behind
+    `NEXT_PUBLIC_SWAP_SOUND_URL` (unset ⇒ `getSwapSound()` returns `undefined`, callers
+    use `?.play()`). We ship no swap sound.
+  - Still-remaining `*.pancakeswap.finance` strings are **non-image**: unused token-list
+    URLs in `config/constants/lists.ts` (not in `DEFAULT_LIST_OF_LISTS`), docs/forum
+    `href`s, and the Solana SDK/Jupiter packages (not routed).

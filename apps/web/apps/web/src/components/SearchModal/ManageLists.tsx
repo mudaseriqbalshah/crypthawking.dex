@@ -66,11 +66,10 @@ function listUrlRowHTMLId(listUrl: string) {
 }
 
 function resolveLogo(list: TokenList): string {
-  const uri = list.logoURI
-  if (uri?.match(/static\.coingecko\.com/)) {
-    return 'https://tokens.pancakeswap.finance/images/projects/coingecko.png'
-  }
-  return uri || ''
+  // CryptoHawking: upstream substituted a PancakeSwap-hosted CoinGecko badge here.
+  // Spec §6.9 forbids requests to *.pancakeswap.* hosts, so fall through to the list's
+  // own logo (the row renders its initials placeholder when there is none).
+  return list.logoURI || ''
 }
 
 const ListRow = memo(function ListRow({ listUrl, chainId: chainIdProp }: { listUrl: string; chainId?: number }) {

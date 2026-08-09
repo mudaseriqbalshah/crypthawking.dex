@@ -58,6 +58,27 @@ export const chainName: { [key: number]: string } = {
 // fall back to the token list's own logoURI. See RISKS.md.
 const TOKEN_IMAGE_CDN = process.env.NEXT_PUBLIC_TOKEN_IMAGE_CDN || "";
 
+// CryptoHawking: locally-served monogram art for the tokens we deployed on Base Sepolia,
+// keyed by lowercase address (see apps/web/src/utils/tokenImages.ts, which holds the same
+// map for the app-level CurrencyLogo). Files live in apps/web/public/images/tokens/84532/.
+const LOCAL_TOKEN_IMAGE_CHAIN_ID = 84532;
+const LOCAL_TOKEN_IMAGE_ADDRESSES = new Set<string>([
+  "0x4200000000000000000000000000000000000006", // WETH
+  "0x582800afc82ba6c8c8b9ce3be0416e913f7e59c2", // tUSDC
+  "0x85323e2368865e6dcffc8def64016a5eafe8d988", // tUSDT
+  "0x66dbae86ec0689cc398ef3f1d4486261ec1ffa07", // tDAI
+  "0xe5839c45b8c282e6786d6cc7dc1c6ab70d5b3d70", // tWBTC
+  "0x2843babb7557cd51e8007f8d2a960457c734c570", // HAWK
+  "0x8f7be274b5e85c4b244cae562aebf023f70a185f", // NEST
+  "0x036cbd53842c5426634e7929541ec2318f3dcf7e", // USDC (Circle, Base Sepolia)
+]);
+
+export const getLocalTokenImage = (chainId?: number, address?: string): string | undefined => {
+  if (chainId !== LOCAL_TOKEN_IMAGE_CHAIN_ID || !address) return undefined;
+  const key = address.toLowerCase();
+  return LOCAL_TOKEN_IMAGE_ADDRESSES.has(key) ? `/images/tokens/${chainId}/${key}.png` : undefined;
+};
+
 // TODO: move to utils or token-list
 export const getTokenListBaseURL = (chainId: number) =>
   TOKEN_IMAGE_CDN ? `${TOKEN_IMAGE_CDN}/images/${chainName[chainId]}` : "";
@@ -104,9 +125,13 @@ export const getCurrencyLogoUrls = memoize(
   (currency: Currency | undefined, { useTrustWallet = true }: GetLogoUrlsOptions = {}): string[] => {
     const trustWalletLogo = getTokenLogoURL(currency?.wrapped);
     const logoUrl = currency ? getTokenListTokenUrl(currency.wrapped) : null;
-    return [getCommonCurrencyUrl(currency), useTrustWallet ? trustWalletLogo : undefined, logoUrl].filter(
-      (url): url is string => !!url
-    );
+    const localLogo = getLocalTokenImage(currency?.chainId, currency?.wrapped?.address);
+    return [
+      localLogo,
+      getCommonCurrencyUrl(currency),
+      useTrustWallet ? trustWalletLogo : undefined,
+      logoUrl,
+    ].filter((url): url is string => !!url);
   },
   (currency: Currency | undefined, options?: GetLogoUrlsOptions) =>
     `logoUrls#${currency?.chainId}#${currency?.wrapped?.address}#${options ? JSON.stringify(options) : ""}`
@@ -120,9 +145,13 @@ export const getCurrencyLogoUrlsByInfo = memoize(
     const { chainId, address, symbol } = currency;
     const trustWalletLogo = getTokenLogoURLByAddress(address, chainId);
     const logoUrl = chainId && address ? getTokenListTokenUrl({ chainId, address }) : null;
-    return [getCommonCurrencyUrlBySymbol(symbol), useTrustWallet ? trustWalletLogo : undefined, logoUrl].filter(
-      (url): url is string => !!url
-    );
+    const localLogo = getLocalTokenImage(chainId, address);
+    return [
+      localLogo,
+      getCommonCurrencyUrlBySymbol(symbol),
+      useTrustWallet ? trustWalletLogo : undefined,
+      logoUrl,
+    ].filter((url): url is string => !!url);
   },
   (currency, options) =>
     `logoUrls#${currency?.chainId}#${currency?.symbol}#${currency?.address}#${options ? JSON.stringify(options) : ""}`
